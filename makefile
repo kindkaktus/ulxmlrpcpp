@@ -12,8 +12,7 @@ SRCS = ulxmlrpcpp.cpp  \
 
 OBJS = $(SRCS:.cpp=.o)
 STATIC_LIB = libulxmlrpcpp.a
-OSSPEC=`uname | tr "[:upper:]" "[:lower:]"`-`uname -r`
-OUT_DIR = lib/$(OSSPEC)
+OUT_DIR = lib
 SRCS_DIR = ulxmlrpcpp
 TEST_DIR = tests
 

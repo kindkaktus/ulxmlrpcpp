@@ -11,7 +11,7 @@ Quick start
 
 <code>make</code>
 
-will build the library library under lib/<your-platform>
+will build the library and place it under lib directory
 
 <code>make test</code>
 
