@@ -19,6 +19,8 @@ TEST_DIR = tests
 
 .PHONY: lib clean test
 
+all release debug: lib
+
 lib: $(STATIC_LIB)
 test: $(STATIC_LIB) build-test run-test
 
