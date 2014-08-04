@@ -1,0 +1,274 @@
+                            ulxmlrpcpp history
+                            ------------------
+
+2011-10-25   1.7.5.p1 by Andrei Korostelev
+  - ADDED Multi-process XMLRPC server (based on funtik::MultiProcessRpcServer from contrib)
+  - ADDED IPv6 support
+  - CHANGED (cleanup) Dropped wbxml_mode functionality, MultiThreadRpcServer, HttpServer, HttpClient, Log4j, chunked transfer support, string macros and more
+  - CHANGED (cleanup) Dropped support for Windows and cygwin platforms, MSVC and Borland compilers
+  - CHANGED got rid of autotools in favour of plain makefiles
+  - ADDED 'make test' will build and execute all tests with clear success/failure indication
+  - ADDED ECC support for SSL connections
+  - FIXED resolved memleaks in TcpIpConnection and SSLConnection classes
+  - CHANGED dropped support for HTTP persisent connections. Being quite a useful feature to improve communication performance it is rather complex to implement it correctly (e.g. garbage-collecting timedout server-side connections; client should then correctly handle such a timed-out connections...). This change basically caused downgrade from HTTP/1.1 to HTTP/1.0
+  - CHANGED A lot of smaller changes/fixes
+                            
+                            
+2010-01-06  1.7.5
+
+ - fix potential memory leak in case of transmission errors
+ - fix double-delete in case of transmission errors
+ - fix #includes for g++ 4.3  (1.7.4 redo from release)
+ - added missing doc file (1.7.4 redo from release)
+ - move static variables out of their functions to avoid
+   strange effects on some platforms
+ - fix issues for g++ 4.4
+
+2007-11-28  1.7.3
+
+ - set SO_LINGER in TcpIpConnection::open() and TcpIpConnection::accept()
+   to avoid lost data upon too fast close()
+ - provide clone() for classes below ulxr::Protocol
+
+2007-09-29  1.7.2
+
+ - #undef feof legacy macro
+ - fixed randomly activated wait values for select()
+ - extend docs regarding javascript
+ - added virtual methods which are called upon entering and leaving
+   MultiThreadRpcServer::serverLoop() and HttpServer::runPicoHttpd()
+   to perform some bookkeeping stuff.
+ - fixed uninitialized memory when getting the host name
+
+2007-08-31  1.7.1
+
+ - extend docs regarding TCP/IP connection features.
+ - added lost line to tests/mt_server.cpp
+ - fix a compilation problem on BSD platforms
+
+2007-08-19  1.7.0
+
+ - make stubber process static methods and free functions.
+ - common header file for method names.
+ - fixes for regression tests.
+ - fix namespace issue.
+ - pretty-print of xml responses is optional and disabled by default
+   to reduce payload and prevent choking of simple xml parsers.
+   Re-enable with enableXmlPrettyPrint(true).
+ - application "introspect" optionally uses a http proxy and dumps
+   the method data into C++ source fragments.
+ - issue error when macro "verify" is #define'd.
+ - added examples for code generation to docs.
+ - timeout for read after accept() was not disabled by passing a 0 but
+   was set to a time of 0ms which led to false error messages.
+ - added option to set an extra (read: longer) timeout for a persistent connection
+   which avoids false error messages when Keep-Alive is used.
+ - fixed a problem with lost data when using epoll and ssl together.
+
+2007-07-15  1.6.0
+
+ - re-started stubber from production sources into rpc method source files.
+   Migrated sources from mockpp project.
+ - added rudimentary logger to log4j/log4cxx logging hosts
+
+1.5.5: 2007-03-01
+
+  - changes to make msvc8 compile with dlls.
+    ULXR_USING_DLL and ULXR_MAKING_DLL were replaced with ULXR_STATIC_LIB
+    (note: this merely reverses the logic to switch DLL <-> LIB).
+    This may break older project files (msvc6/7) and depending projects.
+  - fix configure problems with g++-4.1.2.
+
+1.5.4: 2006-10-23
+
+  - buffer for conversions of ulxr::Double may be too small for numbers larger than
+    40 bytes and make the app crash after corrupting the stack
+  - enable changing format for Double from 1234.5678 to 1.2345678E+3
+  - prefix non-reentrant system library calls with a mutex to make them threadsafe
+  - add pkg-config file
+  - restructured sympol exports for better compiler support
+  - compilation fix for cygwin (snprintf not in std)
+
+1.5.3: 2006-07-29
+
+  - fix and enable getpeername() stuff
+  - enable gethostbyaddr() only upon request by macro
+  - use format from example at www.xmlrpc.com/spec to set date from std::time_t
+
+1.5.2: 2006-05-06
+
+  - use W3C recommendation to represent date and time
+
+1.5.1: 2006-04-27
+
+  - several fixes related to epoll()functionality
+  - several internal variables have been renamed to avoid compiler
+    warnings due to shadowed members
+
+1.5.0:
+
+ * final: 2006-04-11
+
+  - provide forwarding exception value from a multithreaded request
+  - project files for bcb6
+  - fix volatile data
+  - fixes for x86_64 and probably other 64bit platforms
+  - fix for missing iconv
+  - fix pdf file
+  - set socket timeout
+  - added hook in http server loop
+  - passing 0 as server port lets system choose a free port
+  - signature contains "void" when no method parameters are available
+  - MultiProcessRpcServer::shutdownAllThreads and
+    HttpServer::shutdownAllThreads not only set a termination flag
+    but also shutdown the socket and therefor completely stop the thread.
+    This features seems not to work reliably on windows paltforms.
+  - cleanup around shutdown() method
+  - TcpIpConnection::setTcpNoDelay() disables buffer mechanism and may
+    increase overall transmission speed
+  - add TryLocker to try to lock a mutex
+  - experimental: provide use of epoll() to work around resource limitations
+  - fix problem when requesting multithreaded termination in ulxr_http_server.cpp
+
+ * rc6: 2005-09-18
+
+  - forbid several dangerous copy/assignement operators
+  - DateTime takes also std::time_t as parameter
+  - fixes msvc
+  - fix potential loss of connection while accept()
+  - SSL detection in libcrypto for FreeBSD
+  - accept both macros __sun__ and __SUN__
+  - handling of chunked encoding completely rewritten and extended
+  - compatibility break: long getBytesToRead() to bool hasBytesToRead()
+  - cleanup
+
+ * rc5: 2005-06-23
+
+  - avoid a potential problem with HAVE_CONFIG_H (renamed to ULXR_HAVE_CONFIG_H)
+  - workaround for crash after a failed connection
+
+ * rc4: 2005-06-13
+
+  - compatibility break: renamed i18n() to ulxr_i18n()
+  - ignore http header 100-Continue
+  - added lost fix for older systems without SSL_ERROR_WANT_ACCEPT
+  - extracted actual dispatching from Dispatcher::dispatchCall to a
+    seperate method to enable external catching of exceptions
+
+ * rc3: 2005-06-02
+
+  - cleanup and tests for cookie management
+
+ * rc2: 2005-06-02
+
+  - moved all header files into $prefix/include/uxmlrpcpp to avoid name clashes
+    ==> search-and-replace <ulxmlrpcpp.h> to <ulxmlrpcpp/ulxmlrpcpp.h>
+  - fixed generation of distribution when builddir == srcdir
+  - added several missing files to the distribution
+  - detect prototype for iconv
+  - mprocess_server gets correct handle
+
+ * rc1: 2005-05-30
+
+  - use proxy connections with authentication
+  - simple in-memory cookie management
+  - chunked http protocol
+  - timeout to wait for a call
+  - server socket closing possibility
+  - fix potential possibility of memory leaks
+  - return the server handle
+  - be tolerant against EINTR/EAGAIN signals and retry
+  - disable all unicode and wchar_t related stuff unless explicitly
+    enabled with "configure --enable-unicode"
+  - potential compatibility break: all 8bit strings are considered UTF-8.
+    ==> Use asiiToUtf() or encodingToUtf8() to convert 8bit strings.
+  - compatibility break: HttpConnection takes different parameter sets
+    ==> either omit hostname or pass hostname+port
+  - potential compatibility break: in client mode getPeerName() returns the host name
+    which was passed  at object construction and does no more try to get the name after
+    the connection is established
+  - fix for kerberos compilation problem on red hat
+  - optionally compile without multithreading support
+  - some other minor patches and fixes
+  - internal cleanup
+
+1.4.8: 2004-09-23
+
+  - code cleanup
+  - compatibility fixes
+  - removed artificial limitation for non-persistent connections
+
+1.4.7: 2004-09-08
+
+  - added missing SSL configuration flag
+
+1.4.6: 2004-09-02
+
+  - added missing \r to line endings
+
+
+1.4.4: 2004-08-03
+
+  - fixes and workarounds for MS VC
+
+
+1.4.3:
+
+  - fixed a problem with the makefiles
+  - boolean type uses 0/1 instead of false/true
+
+1.4.2:
+
+  - fixed CRCLF conversion problem under Windows
+  - increased transfer speed for xml rpc strings
+
+1.4.1:
+
+  - fixed compile problems with bcb5
+  - closed memory leak
+
+1.4.0: 2004-05-29
+
+  - support for OpenSSL
+  - partial rewrite to separate transmission and protocol
+  - fixed problem with "void" method return values
+
+1.3.0
+
+  - support for limited binary xml
+
+1.2.6: 2004-01-11
+
+  - additional #include for RH8
+  - fixed some misspelling
+
+1.2.5: 2003-12-20
+
+  - simple multithreading support
+  - class Signature move to its own file,
+    #include ulxr_signature.h might become neccessary
+  - make_responder renamed to make_method
+  - changed auto[make|conf] files
+  - cleanup namespaces, [std|wxWindows]::string
+  - port to OpenBSD 3.1 and gcc 2.95 (no unicode support for gcc2.95)
+  - option to compile for unicode environment
+    which includes some name changes
+  - improved handling of realms and resources,
+    resources are now covered by objects within the http-server
+    sample implementation
+  - added support for html form handling
+
+1.1.0:  2002-11-20
+
+  - Query version
+  - Streaming operators for Signature and Arrays/Structs
+  - Better support for M$VC
+
+1.0.0:  2002-Oct-04
+
+  First main release with basically all features that shall be included.
+
+0.99:  2002-May-02
+
+  First release of an almost complete version.
+
