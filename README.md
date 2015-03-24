@@ -3,7 +3,7 @@ ulxmlrpcpp
 
 Ulxmlrpcpp is a lightweight C++ XML-RPC library
 
-The library is initially cloned from http://ulxmlrpcpp.sourceforge.net/ for the purpose of adding IPv6 support and adding support for Ellipic-Curve keys for SSL connections. Besides that some code clenup has been made.
+The library is initially cloned from http://ulxmlrpcpp.sourceforge.net/ for the purpose of adding IPv6 support and adding support for Ellipic-Curve keys for SSL connections. Besides that some code cleanup has been made.
 
 
 Quick start
