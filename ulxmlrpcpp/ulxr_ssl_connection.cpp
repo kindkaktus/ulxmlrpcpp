@@ -38,10 +38,38 @@
 #include <openssl/err.h>
 #include <ulxmlrpcpp/ulxr_ssl_connection.h>
 #include <ulxmlrpcpp/ulxr_except.h>
+#include <openssl/ssl.h>
 #include <string.h>
 #include <sstream>
 
+ #ifndef __OpenBSD__
+ #ifndef strlcpy
+ static size_t strlcpy(char* dst, const char* src, size_t siz)
+ {
+     char* d = dst;
+     const char* s = src;
+     size_t n = siz;
 
+     /* Copy as many bytes as will fit */
+     if (n != 0) {
+         while (--n != 0) {
+             if ((*d++ = *s++) == '\0')
+                 break;
+         }
+     }
+
+     /* Not enough room in dst, add NUL and traverse rest of src */
+     if (n == 0) {
+         if (siz != 0)
+             *d = '\0';   /* NUL-terminate dst */
+         while (*s++)
+             ;
+     }
+
+     return(s - src - 1); /* count does not include NUL */
+ }
+ #endif
+ #endif
 
 namespace ulxr {
 
@@ -76,7 +104,7 @@ static int password_cb(char *buf,int num, int /*rwflag*/, void *userdata)
  : TcpIpConnection(aListenIp, port)
  , theSSL(NULL)
  , theSSL_ctx(NULL)
- , theAllowEcCiphers(anAllowEcCiphers) 
+ , theAllowEcCiphers(anAllowEcCiphers)
 
 {
   ULXR_TRACE("SSLConnection");
@@ -90,7 +118,7 @@ void
                                       const std::string &in_keyfile)
 {
     password = in_password;
-    
+
 	if (!in_certfile.empty())
 	{
 		if (SSL_CTX_use_certificate_file(theSSL_ctx, in_certfile.c_str(), SSL_FILETYPE_PEM) <= 0)
@@ -120,7 +148,7 @@ void SSLConnection::initializeCTX()
         SSL_CTX_free(theSSL_ctx);
         theSSL_ctx = NULL;
         throw ConnectionException(SystemError,  "SSL_CTX_set_cipher_list failed", 500);
-  }     
+  }
 
   SSL_CTX_set_default_passwd_cb(theSSL_ctx, password_cb);
   SSL_CTX_set_default_passwd_cb_userdata(theSSL_ctx, this);
@@ -155,7 +183,7 @@ void SSLConnection::init()
   {
     SSL_free(theSSL);
     theSSL = NULL;
-  }  
+  }
 }
 
 
@@ -170,14 +198,14 @@ void SSLConnection::close()
 }
 
 
-ssize_t SSLConnection::low_level_write(char const *buff, long len)
+size_t SSLConnection::low_level_write(char const *buff, long len)
 {
   ULXR_TRACE("low_level_write");
 
   if (isConnecting())
     return TcpIpConnection::low_level_write(buff, len);
 
-  ssize_t ret;
+  size_t ret;
   while (true)
   {
     ULXR_TRACE("low_level_write 2");
@@ -222,10 +250,10 @@ bool SSLConnection::hasPendingInput() const
 }
 
 
-ssize_t SSLConnection::low_level_read(char *buff, long len)
+size_t SSLConnection::low_level_read(char *buff, long len)
 {
   ULXR_TRACE("low_level_read");
-  ssize_t ret;
+  size_t ret;
 
   if (isConnecting())
     return TcpIpConnection::low_level_read(buff, len);
@@ -290,7 +318,7 @@ void SSLConnection::open()
   createSSL();
 
        //@todo for performance reasons it might make sense to use SSL_SESSION (SSL_set_session in open() and SSL_get1_session() in close)
-       
+
   int myRet = SSL_connect (theSSL);
   if (myRet != 1)
     throw ConnectionException(SystemError, "Problem starting SSL connection (client mode). SSL_connect() returned " + toString(SSL_get_error(theSSL, myRet)), 500);
@@ -302,8 +330,8 @@ bool SSLConnection::accept(int in_timeout)
   ULXR_TRACE("accept");
 
      if (theSSL)
-          throw RuntimeException(ApplicationError, "Attempt to accept an already open SSL connection");      
-      
+          throw RuntimeException(ApplicationError, "Attempt to accept an already open SSL connection");
+
   if (SSL_CTX_use_certificate_file(theSSL_ctx, certfile.c_str(), SSL_FILETYPE_PEM) <= 0)
     throw ConnectionException(SystemError, "problem setting up certificate", 500);
 

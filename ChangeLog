@@ -1,19 +1,20 @@
                             ulxmlrpcpp history
                             ------------------
 
-2011-10-25   1.7.5.p1 by Andrei Korostelev
+2015-03-31   1.7.5.p1 by Andrei Korostelev
   - ADDED Multi-process XMLRPC server (based on funtik::MultiProcessRpcServer from contrib)
   - ADDED IPv6 support
   - CHANGED (cleanup) Dropped wbxml_mode functionality, MultiThreadRpcServer, HttpServer, HttpClient, Log4j, chunked transfer support, string macros and more
   - CHANGED (cleanup) Dropped support for Windows and cygwin platforms, MSVC and Borland compilers
   - CHANGED got rid of autotools in favour of plain makefiles
   - ADDED 'make test' will build and execute all tests with clear success/failure indication
-  - ADDED ECC support for SSL connections
+  - ADDED ECC (Elliptic Curve Cryptograpny) support for SSL connections
+  - ADDED support for OpenBSD and for Linux
   - FIXED resolved memleaks in TcpIpConnection and SSLConnection classes
   - CHANGED dropped support for HTTP persisent connections. Being quite a useful feature to improve communication performance it is rather complex to implement it correctly (e.g. garbage-collecting timedout server-side connections; client should then correctly handle such a timed-out connections...). This change basically caused downgrade from HTTP/1.1 to HTTP/1.0
   - CHANGED A lot of smaller changes/fixes
-                            
-                            
+
+
 2010-01-06  1.7.5
 
  - fix potential memory leak in case of transmission errors

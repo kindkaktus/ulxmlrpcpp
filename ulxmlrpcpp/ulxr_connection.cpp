@@ -49,7 +49,7 @@
 #include <ulxmlrpcpp/ulxr_except.h>
 
 
-namespace ulxr 
+namespace ulxr
 {
 
 
@@ -95,7 +95,7 @@ namespace ulxr
     }
 
 
-    ssize_t Connection::low_level_write(char const *buff, long len)
+    size_t Connection::low_level_write(char const *buff, long len)
     {
       ULXR_TRACE("low_level_write " << len);
        return ::write(fd_handle, buff, len);
@@ -124,10 +124,10 @@ namespace ulxr
         FD_ZERO(&wfd);
         FD_SET((unsigned) fd_handle, &wfd);
         int ready;
-        
+
         wait.tv_sec = getTimeout();
         wait.tv_usec = 0;
-      
+
         while((ready = select(fd_handle+1, 0, &wfd, 0, &wait)) < 0)
         {
           if(errno == EINTR || errno == EAGAIN)
@@ -183,13 +183,13 @@ namespace ulxr
     }
 
 
-    ssize_t Connection::low_level_read(char *buff, long len)
+    size_t Connection::low_level_read(char *buff, long len)
     {
         return ::read(fd_handle, buff, len);
     }
 
 
-    ssize_t Connection::read(char *buff, long len)
+    size_t Connection::read(char *buff, long len)
     {
       long myRead = 0;
 
@@ -268,7 +268,7 @@ namespace ulxr
                                           + getErrorString(getLastError()), 500);
             }
           }
-        }      
+        }
       }
 
 

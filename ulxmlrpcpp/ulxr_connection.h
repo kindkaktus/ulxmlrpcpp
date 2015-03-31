@@ -102,9 +102,9 @@ class  Connection
  /** Closes the connection.
    */
    virtual void close();
-   
+
     /** Stops serving for server-side connection
-   */     
+   */
    virtual void stopServing() = 0;
 
  /** Writes data to the connection.
@@ -118,7 +118,7 @@ class  Connection
    * @param  len  maimum number of bytes to read into buffer
    * @return number of actually read bytes
    */
-   virtual ssize_t read(char *buff, long len);
+   virtual size_t read(char *buff, long len);
 
  /** Opens the connection in rpc client mode.
    */
@@ -170,7 +170,7 @@ class  Connection
    * @param  connector   connector callback
    */
    void setConnector(ConnectorWrapperBase *connector);
-   
+
    virtual int getServerIpv4Handle() = 0;
    virtual int getServerIpv6Handle() = 0;
 
@@ -197,14 +197,14 @@ class  Connection
    * @param  len  valid buffer length
    * @return  result from api write function
    */
-   virtual ssize_t low_level_write(char const *buff, long len);
+   virtual size_t low_level_write(char const *buff, long len);
 
  /** Reads data from the connection.
    * @param  buff pointer to data buffer
    * @param  len  maimum number of bytes to read into buffer
    * @return  result from api read function
    */
-   virtual ssize_t low_level_read(char *buff, long len);
+   virtual size_t low_level_read(char *buff, long len);
 
  /** Checks if there is input dta which can innediately be read.
    * @return true: data available

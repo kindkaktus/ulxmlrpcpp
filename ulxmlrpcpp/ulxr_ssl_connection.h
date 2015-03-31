@@ -33,7 +33,12 @@
 
 #include <ulxmlrpcpp/ulxmlrpcpp.h>
 #include <ulxmlrpcpp/ulxr_tcpip_connection.h>
-#include <openssl/ssl.h>
+
+ // Forward declarations from OpenSSL
+ struct ssl_st;
+ struct ssl_ctx_st;
+ typedef struct ssl_st SSL;
+ typedef struct ssl_ctx_st SSL_CTX;
 
 
 namespace ulxr {
@@ -52,7 +57,7 @@ class  SSLConnection : public TcpIpConnection
    SSLConnection(const std::string& aRemoteHost, unsigned port, bool anAllowEcCiphers, size_t aTcpConnectionTimeout = TcpIpConnection::DefConnectionTimeout);
    SSLConnection(const IP &aListenIp, unsigned port, bool anAllowEcCiphers);
 
- 
+
  /** Constructs a connection.
    * The connection is not yet open after construction.
    */
@@ -120,14 +125,14 @@ class  SSLConnection : public TcpIpConnection
    * @param  len  valid buffer length
    * @return  result from api write function
    */
-   ssize_t virtual low_level_write(char const *buff, long len);
+   size_t virtual low_level_write(char const *buff, long len);
 
  /** Reads data from the connection.
    * @param  buff pointer to data buffer
    * @param  len  maimum number of bytes to read into buffer
    * @return  result from api read function
    */
-   ssize_t virtual low_level_read(char *buff, long len);
+   size_t virtual low_level_read(char *buff, long len);
 
  /** Initializes internal variables.
    */

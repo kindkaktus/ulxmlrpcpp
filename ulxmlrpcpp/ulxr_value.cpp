@@ -34,6 +34,7 @@
 #include <ctime>
 #include <vector>
 #include <iostream>
+#include <cstdlib>
 
 #include <ulxmlrpcpp/ulxr_value.h>
 #include <ulxmlrpcpp/ulxr_except.h>

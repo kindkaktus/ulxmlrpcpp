@@ -36,6 +36,8 @@
 
 #include <cstring>
 #include <cerrno>
+#include <algorithm>
+#include <cstdio>
 
 #include <sys/time.h>
 #include <sys/types.h>
@@ -71,11 +73,11 @@ namespace ulxr {
 
             int myRet = getaddrinfo(anAddrStr.c_str(), NULL, &hints, &res);
             if (myRet != 0)
-                throw ConnectionException(SystemError, "Failed to parse IPv6 from " + anAddrStr + " : " + std::string(gai_strerror(myRet)), 500);  
+                throw ConnectionException(SystemError, "Failed to parse IPv6 from " + anAddrStr + " : " + std::string(gai_strerror(myRet)), 500);
             memcpy(&anAddr, res->ai_addr, res->ai_addrlen);
             freeaddrinfo(res);
             anAddr.sin6_port = htons(aPort);
-        }         
+        }
     }
 
 
@@ -91,7 +93,7 @@ namespace ulxr {
 
  TcpIpConnection::ServerSocketData::~ServerSocketData()
 {
-  try{ close(); } 
+  try{ close(); }
   catch(...) {}
 }
 
@@ -136,7 +138,7 @@ void TcpIpConnection::ServerSocketData::close()
         while(ret < 0 && (errno == EINTR || errno == EAGAIN));
 
         ipv6_socket_no = -1;
-    }  
+    }
 }
 
 
@@ -148,9 +150,9 @@ struct TcpIpConnection::PImpl
    PImpl()
    : server_data(NULL)
    {}
-   
+
    unsigned            port;
-   
+
    ServerSocketData   *server_data;
 
    struct sockaddr_in  ipv4_hostdata;
@@ -160,7 +162,7 @@ struct TcpIpConnection::PImpl
    std::string           peer_name;
    struct sockaddr_in  ipv4_peerdata;
    socklen_t           ipv4_peerdata_len;
-   struct sockaddr_in6 ipv6_peerdata;   
+   struct sockaddr_in6 ipv6_peerdata;
    socklen_t           ipv6_peerdata_len;
 };
 
@@ -170,22 +172,22 @@ struct TcpIpConnection::PImpl
   : Connection()
   , pimpl(new PImpl)
   , theTcpConnectionTimeout(aTcpConnectionTimeout)
-{ 
+{
   IP myRemoteHostIp = getIpByName(aRemoteHost);
   isIpv4 = isValidIpv4(myRemoteHostIp.ipv4);
   isIpv6 = isValidIpv6(myRemoteHostIp.ipv6);
 
   assert(isIpv4 || isIpv6);
-  
+
   init(port);
-                              
+
   if (isIpv4)
   {
         int myRet = inet_pton(AF_INET, myRemoteHostIp.ipv4.c_str(), &pimpl->ipv4_hostdata.sin_addr);
         if (myRet == 0)
-            throw ConnectionException(SystemError, myRemoteHostIp.ipv4 + " is invalid IPv4 address: " + getErrorString(getLastError()), 500);      
+            throw ConnectionException(SystemError, myRemoteHostIp.ipv4 + " is invalid IPv4 address: " + getErrorString(getLastError()), 500);
         if (myRet < 0)
-            throw ConnectionException(SystemError, "Failed to initialize IPv4 address " + myRemoteHostIp.ipv4 + " : " + getErrorString(getLastError()), 500);   
+            throw ConnectionException(SystemError, "Failed to initialize IPv4 address " + myRemoteHostIp.ipv4 + " : " + getErrorString(getLastError()), 500);
   }
   if (isIpv6)
   {
@@ -198,24 +200,24 @@ struct TcpIpConnection::PImpl
   : Connection()
   , pimpl(new PImpl)
   , theTcpConnectionTimeout(0) /* makes no sense for server*/
-{  
+{
   isIpv4 = isValidIpv4(aListenIp.ipv4);
   isIpv6 = isValidIpv6(aListenIp.ipv6);
   if (!isIpv4 && !isIpv6)
-      throw ConnectionException(SystemError, "Neither '" + aListenIp.ipv4 + "' is valid IPv4 address nor '" + aListenIp.ipv6 + "' is valid IPv6 address", 500);      
+      throw ConnectionException(SystemError, "Neither '" + aListenIp.ipv4 + "' is valid IPv4 address nor '" + aListenIp.ipv6 + "' is valid IPv6 address", 500);
   init(port);
-  
-   int ipv4Sock = -1, ipv6Sock  = -1;  
+
+   int ipv4Sock = -1, ipv6Sock  = -1;
   if (isIpv4)
   {
       int myRet = -1;
       if ((myRet = inet_pton(AF_INET, aListenIp.ipv4.c_str(), &pimpl->ipv4_hostdata.sin_addr)) == 0)
-          throw ConnectionException(SystemError, aListenIp.ipv4 + " is invalid IPv4 address: " + getErrorString(getLastError()), 500);      
+          throw ConnectionException(SystemError, aListenIp.ipv4 + " is invalid IPv4 address: " + getErrorString(getLastError()), 500);
      if (myRet < 0)
-         throw ConnectionException(SystemError, "Failed to initialize IPv4 address " + aListenIp.ipv4 + " : " + getErrorString(getLastError()), 500);   
+         throw ConnectionException(SystemError, "Failed to initialize IPv4 address " + aListenIp.ipv4 + " : " + getErrorString(getLastError()), 500);
      ipv4Sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
      if (ipv4Sock < 0)
-         throw ConnectionException(SystemError, "Failed to create IPv4 TCP socket : " + getErrorString(getLastError()), 500);   
+         throw ConnectionException(SystemError, "Failed to create IPv4 TCP socket : " + getErrorString(getLastError()), 500);
     int sockOpt = 1;
     if (::setsockopt(ipv4Sock, SOL_SOCKET, SO_REUSEADDR, (const char*)&sockOpt, sizeof(sockOpt)) < 0)
       throw ConnectionException(SystemError,  "Could not set reuse flag for socket: " + getErrorString(getLastError()), 500);
@@ -223,10 +225,10 @@ struct TcpIpConnection::PImpl
     int iOptLen = sizeof(int);
     ::setsockopt(ipv4Sock, SOL_SOCKET, SO_RCVTIMEO, (char*)&iOptVal, iOptLen);
     ::setsockopt(ipv4Sock, SOL_SOCKET, SO_SNDTIMEO, (char*)&iOptVal, iOptLen);
-    
+
     if ((::bind(ipv4Sock, (sockaddr*) &pimpl->ipv4_hostdata, sizeof(pimpl->ipv4_hostdata))) < 0)
-      throw ConnectionException(SystemError, "Could not bind to IPv4 adress " + aListenIp.ipv4 + ":" + toString(port) + " : " + getErrorString(getLastError()), 500);    
-    
+      throw ConnectionException(SystemError, "Could not bind to IPv4 adress " + aListenIp.ipv4 + ":" + toString(port) + " : " + getErrorString(getLastError()), 500);
+
     listen(ipv4Sock, SOMAXCONN);
   }
   if (isIpv6)
@@ -234,7 +236,7 @@ struct TcpIpConnection::PImpl
     getIpv6AddrInfo(aListenIp.ipv6, port, pimpl->ipv6_hostdata, true);
     ipv6Sock = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
     if (ipv6Sock < 0)
-     throw ConnectionException(SystemError, "Failed to create IPv6 TCP socket : " + getErrorString(getLastError()), 500);        
+     throw ConnectionException(SystemError, "Failed to create IPv6 TCP socket : " + getErrorString(getLastError()), 500);
     int sockOpt = 1;
     if (::setsockopt(ipv6Sock, SOL_SOCKET, SO_REUSEADDR, (const char*)&sockOpt, sizeof(sockOpt)) < 0)
       throw ConnectionException(SystemError,  "Could not set reuse flag for socket: " + getErrorString(getLastError()), 500);
@@ -248,7 +250,7 @@ struct TcpIpConnection::PImpl
 
      listen(ipv6Sock, SOMAXCONN);
   }
-  
+
    assert(ipv4Sock >= 0 || ipv6Sock >= 0);
    pimpl->server_data = new ServerSocketData(ipv4Sock, ipv6Sock);
 }
@@ -267,7 +269,7 @@ void TcpIpConnection::init(unsigned port)
     pimpl->ipv4_peerdata_len = sizeof(pimpl->ipv4_peerdata);
     memset(&pimpl->ipv4_hostdata, 0, sizeof(pimpl->ipv4_hostdata));
     memset(&pimpl->ipv4_peerdata, 0, sizeof(pimpl->ipv4_peerdata));
-  
+
     pimpl->ipv4_hostdata.sin_port = htons(pimpl->port);
     pimpl->ipv4_hostdata.sin_family = AF_INET;
   }
@@ -276,7 +278,7 @@ void TcpIpConnection::init(unsigned port)
     pimpl->ipv6_peerdata_len = sizeof(pimpl->ipv6_peerdata);
     memset(&pimpl->ipv6_hostdata, 0, sizeof(pimpl->ipv6_hostdata));
     memset(&pimpl->ipv6_peerdata, 0, sizeof(pimpl->ipv6_peerdata));
-  
+
     pimpl->ipv6_hostdata.sin6_port = htons(pimpl->port);
     pimpl->ipv6_hostdata.sin6_family = AF_INET6;
   }
@@ -292,10 +294,10 @@ void TcpIpConnection::init(unsigned port)
       delete pimpl->server_data;
       pimpl->server_data = NULL;
     }
-    
+
     delete pimpl;
     pimpl = NULL;
-    
+
 	try	{ TcpIpConnection::close(); }
 	catch (...)
 	{}
@@ -310,26 +312,26 @@ bool TcpIpConnection::isServerMode() const
 void TcpIpConnection::setNonblock(int fd, bool aSet)
 {
 	int oldflags = fcntl(fd, F_GETFL, 0);
-	if(oldflags < 0) 
+	if(oldflags < 0)
 	    throw ConnectionException(SystemError, "Failed to get mode for fd", 500);
-	if (aSet) 
+	if (aSet)
 	{
 	    oldflags |= O_NONBLOCK;
 		if  (fcntl(fd, F_SETFL, oldflags) < 0)
-			throw ConnectionException(SystemError, "Failed to set non-blocking mode for fd", 500);		
+			throw ConnectionException(SystemError, "Failed to set non-blocking mode for fd", 500);
     }
-	else 
+	else
 	{
 	    oldflags &= ~O_NONBLOCK;
 		if  (fcntl(fd, F_SETFL, oldflags) < 0)
-			throw ConnectionException(SystemError, "Failed to set blocking mode for fd", 500);		
+			throw ConnectionException(SystemError, "Failed to set blocking mode for fd", 500);
     }
 }
 
 bool TcpIpConnection::connectNonBlocking(int sock, const struct sockaddr *name, socklen_t namelen, unsigned int aConnectTimeoutSec, std::string& anErrorMsg, bool anIsIpv6)
 {
     bool myIsConnected = false;
-	
+
 	setNonblock(sock, true);
 	if (connect(sock, name, namelen) < 0)
 	{
@@ -338,9 +340,9 @@ bool TcpIpConnection::connectNonBlocking(int sock, const struct sockaddr *name, 
 			fd_set sel;
 			FD_ZERO(&sel);
 			FD_SET((unsigned)sock, &sel);
-			timeval myConnectTimeout; 
+			timeval myConnectTimeout;
 			myConnectTimeout.tv_sec = aConnectTimeoutSec;
-			myConnectTimeout.tv_usec = 0;			
+			myConnectTimeout.tv_usec = 0;
 			int mySelectRes = select(sock+1, NULL, &sel, NULL, &myConnectTimeout);
 			if (mySelectRes < 0)
 			{
@@ -351,9 +353,9 @@ bool TcpIpConnection::connectNonBlocking(int sock, const struct sockaddr *name, 
 			else if (mySelectRes == 0)
 			{
 			    if (!anErrorMsg.empty())
-				    anErrorMsg += ". ";			
+				    anErrorMsg += ". ";
 				anErrorMsg += std::string("Failed to connect ") + (anIsIpv6?"IPv6":"IPv4") + " (using select). Connection timed out after " + toString(aConnectTimeoutSec) + " seconds.";
-			}				
+			}
 			else
 			{
 				myIsConnected = true;
@@ -362,7 +364,7 @@ bool TcpIpConnection::connectNonBlocking(int sock, const struct sockaddr *name, 
 		else
 		{
 			if (!anErrorMsg.empty())
-				anErrorMsg += ". ";			
+				anErrorMsg += ". ";
 			anErrorMsg += std::string("Failed to connect ") + (anIsIpv6?"IPv6. ":"IPv4. ") + getErrorString(getLastError());
 		}
 	}
@@ -387,7 +389,7 @@ void TcpIpConnection::open()
 
   assert(isIpv4 || isIpv6);
   std::string myLastErrorStr;
-  
+
   if (isIpv6)
   {
        int sock = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
@@ -403,18 +405,18 @@ void TcpIpConnection::open()
       {
         pimpl->ipv6_peerdata_len = sizeof(pimpl->ipv6_peerdata);
         if (getpeername(getHandle(),  (struct sockaddr *)&pimpl->ipv6_peerdata, &pimpl->ipv6_peerdata_len)<0)
-            throw ConnectionException(SystemError, "Could not get peer data: " + getErrorString(getLastError()), 500);  
+            throw ConnectionException(SystemError, "Could not get peer data: " + getErrorString(getLastError()), 500);
 
         char myIpSzBuf[INET6_ADDRSTRLEN] = {};
         if (!inet_ntop(AF_INET6, &(pimpl->ipv6_peerdata.sin6_addr), myIpSzBuf, sizeof(myIpSzBuf)))
             throw ConnectionException(SystemError,  "inet_ntop failed: " + getErrorString(getLastError()), 500);
-        pimpl->peer_name = myIpSzBuf + std::string(":") + toString(ntohs(pimpl->ipv6_peerdata.sin6_port));    
-          
+        pimpl->peer_name = myIpSzBuf + std::string(":") + toString(ntohs(pimpl->ipv6_peerdata.sin6_port));
+
         abortOnClose(true);
-        return;            
+        return;
       }
   }
-  
+
   if (isIpv4)
   {
        int sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -427,16 +429,16 @@ void TcpIpConnection::open()
       ::setsockopt(getHandle(), SOL_SOCKET, SO_SNDTIMEO, (char*)&iOptVal, iOptLen);
       doTcpNoDelay();
 	  if (connectNonBlocking(getHandle(),  (struct sockaddr *)&pimpl->ipv4_hostdata, sizeof(pimpl->ipv4_hostdata), theTcpConnectionTimeout, myLastErrorStr, false))
-      {   
+      {
         pimpl->ipv4_peerdata_len = sizeof(pimpl->ipv4_peerdata);
         if (getpeername(getHandle(),  (struct sockaddr *)&pimpl->ipv4_peerdata, &pimpl->ipv4_peerdata_len)<0)
-          throw ConnectionException(SystemError, "Could not get peer data: " + getErrorString(getLastError()), 500);        
+          throw ConnectionException(SystemError, "Could not get peer data: " + getErrorString(getLastError()), 500);
         pimpl->peer_name = inet_ntoa(pimpl->ipv4_peerdata.sin_addr) + std::string(":") + toString(ntohs(pimpl->ipv4_peerdata.sin_port));
-          
-        abortOnClose(true);  
+
+        abortOnClose(true);
         return;
       }
-  } 
+  }
   throw ConnectionException(SystemError, myLastErrorStr, 500);
 }
 
@@ -450,14 +452,14 @@ bool TcpIpConnection::accept(int in_timeout)
 
   if (!getServerData())
     throw ConnectionException(SystemError, "Connection is NOT prepared for client mode", 500);
-    
+
    assert(isIpv4 || isIpv6);
 
   if (isIpv4)
       pimpl->ipv4_peerdata_len = sizeof(pimpl->ipv4_peerdata);
   if (isIpv6)
       pimpl->ipv6_peerdata_len = sizeof(pimpl->ipv6_peerdata);
-  
+
     std::list<int> myListenSockets;
     if (isIpv4)
         myListenSockets.push_back(getServerData()->getIpv4Socket());
@@ -474,44 +476,44 @@ bool TcpIpConnection::accept(int in_timeout)
     // Prefer IPv6 if we have both
     bool myIsIpv6Connection = std::find(myListenSockets.begin(),myListenSockets.end(), getServerData()->getIpv6Socket()) != myListenSockets.end();
 
-  ULXR_TRACE("waiting for connection");
-  do
-  {
+    ULXR_TRACE("waiting for connection");
+    do
+    {
+      if (myIsIpv6Connection)
+        setHandle(::accept(getServerData()->getIpv6Socket(), (sockaddr*) &pimpl->ipv6_peerdata, &pimpl->ipv6_peerdata_len ));
+      else
+        setHandle(::accept(getServerData()->getIpv4Socket(), (sockaddr*) &pimpl->ipv4_peerdata, &pimpl->ipv4_peerdata_len ));
+    }
+    while(getHandle() < 0 && (errno == EINTR || errno == EAGAIN));
+
+    if (getHandle() < 0)
+      throw ConnectionException(SystemError, "Could not accept a connection: " + getErrorString(getLastError()), 500);
+
+    doTcpNoDelay();
+
     if (myIsIpv6Connection)
-      setHandle(::accept(getServerData()->getIpv6Socket(), (sockaddr*) &pimpl->ipv6_peerdata, &pimpl->ipv6_peerdata_len ));
+    {
+        char myIpSzBuf[INET6_ADDRSTRLEN] = {};
+        if (!inet_ntop(AF_INET6, &(pimpl->ipv6_peerdata.sin6_addr), myIpSzBuf, sizeof(myIpSzBuf)))
+           throw ConnectionException(SystemError,  "inet_ntop failed: " + getErrorString(getLastError()), 500);
+        pimpl->peer_name = myIpSzBuf + std::string(":") + toString(ntohs(pimpl->ipv6_peerdata.sin6_port));
+    }
     else
-      setHandle(::accept(getServerData()->getIpv4Socket(), (sockaddr*) &pimpl->ipv4_peerdata, &pimpl->ipv4_peerdata_len ));      
-  }
-  while(getHandle() < 0 && (errno == EINTR || errno == EAGAIN));
+    {
+      pimpl->peer_name = inet_ntoa(pimpl->ipv4_peerdata.sin_addr) + std::string(":") + toString(ntohs(pimpl->ipv4_peerdata.sin_port));
+    }
 
-  if (getHandle() < 0)
-    throw ConnectionException(SystemError, "Could not accept a connection: " + getErrorString(getLastError()), 500);
+    ULXR_TRACE("/accept");
 
-  doTcpNoDelay();
-
-  if (myIsIpv6Connection)
-  {
-      char myIpSzBuf[INET6_ADDRSTRLEN] = {};
-      if (!inet_ntop(AF_INET6, &(pimpl->ipv6_peerdata.sin6_addr), myIpSzBuf, sizeof(myIpSzBuf)))
-         throw ConnectionException(SystemError,  "inet_ntop failed: " + getErrorString(getLastError()), 500);
-      pimpl->peer_name = myIpSzBuf + std::string(":") + toString(ntohs(pimpl->ipv6_peerdata.sin6_port));  
-  }
-  else
-  {
-    pimpl->peer_name = inet_ntoa(pimpl->ipv4_peerdata.sin_addr) + std::string(":") + toString(ntohs(pimpl->ipv4_peerdata.sin_port));
-  }
-
-  ULXR_TRACE("/accept");
-
-  abortOnClose(true);
-  return true;
+    abortOnClose(true);
+    return true;
 }
 
 int TcpIpConnection::getServerIpv4Handle ()
 {
   if (pimpl->server_data)
     return pimpl->server_data->getIpv4Socket();
- 
+
   return -1;
 }
 
@@ -576,7 +578,7 @@ int TcpIpConnection::abortOnClose(int bOn)
     {
         handle = getServerData()->getIpv6Socket();
         return setsockopt(handle, SOL_SOCKET, SO_LINGER, &sock_linger_struct, sizeof(linger));
-    }    
+    }
   }
   else
   {
@@ -630,7 +632,7 @@ bool TcpIpConnection::isValidIpv4(const std::string& anAddr)
         return true;
     if (myRet == 0)
         return false;
-    throw ConnectionException(SystemError, "isValidIpv4: inet_pton() failed for  " + anAddr + ". Error : " + getErrorString(getLastError()), 500); 
+    throw ConnectionException(SystemError, "isValidIpv4: inet_pton() failed for  " + anAddr + ". Error : " + getErrorString(getLastError()), 500);
 }
 
 bool TcpIpConnection::isValidIpv6(const std::string& anAddr)
@@ -653,12 +655,12 @@ std::string TcpIpConnection::getIpv4ByName(const std::string& aHostName)
         return aHostName;
     hostent* myHost = ::gethostbyname(aHostName.c_str());
     if (!myHost)
-        throw ConnectionException(SystemError, "gethostbyname() failed for host " + aHostName + " : " + std::string(hstrerror(h_errno)), 500); 
-        
-    char myIpBuf[1024] = {};    
-    snprintf(myIpBuf, sizeof(myIpBuf), "%u.%u.%u.%u",  (unsigned int)(unsigned char)myHost->h_addr_list[0][0], 
-                                                       (unsigned int)(unsigned char)myHost->h_addr_list[0][1], 
-                                                       (unsigned int)(unsigned char)myHost->h_addr_list[0][2], 
+        throw ConnectionException(SystemError, "gethostbyname() failed for host " + aHostName + " : " + std::string(hstrerror(h_errno)), 500);
+
+    char myIpBuf[1024] = {};
+    snprintf(myIpBuf, sizeof(myIpBuf), "%u.%u.%u.%u",  (unsigned int)(unsigned char)myHost->h_addr_list[0][0],
+                                                       (unsigned int)(unsigned char)myHost->h_addr_list[0][1],
+                                                       (unsigned int)(unsigned char)myHost->h_addr_list[0][2],
                                                        (unsigned int)(unsigned char)myHost->h_addr_list[0][3]);
     return myIpBuf;
 }
@@ -669,10 +671,10 @@ std::string TcpIpConnection::getIpv6ByName(const std::string& aHostName)
         return aHostName;
     hostent* myHost = ::gethostbyname2(aHostName.c_str(), AF_INET6);
     if (!myHost)
-        throw ConnectionException(SystemError, "gethostbyname2() failed for host " + aHostName + " : " + std::string(hstrerror(h_errno)), 500); 
+        throw ConnectionException(SystemError, "gethostbyname2() failed for host " + aHostName + " : " + std::string(hstrerror(h_errno)), 500);
     char myIpSzBuf[INET6_ADDRSTRLEN] = {};
     if (!inet_ntop(myHost->h_addrtype, myHost->h_addr_list[0], myIpSzBuf, sizeof(myIpSzBuf)))
-        throw ConnectionException(SystemError, "inet_ntop() failed for host " + aHostName + " : " + getErrorString(getLastError()), 500); 
+        throw ConnectionException(SystemError, "inet_ntop() failed for host " + aHostName + " : " + getErrorString(getLastError()), 500);
     std::string myRetVal = myIpSzBuf;
     return myRetVal;
 }
@@ -711,11 +713,11 @@ IP TcpIpConnection::getIpByName(const std::string& aHostName)
             throw ConnectionException(SystemError, "Cannot resolve neither IPv4 nor IPv6 of " + aHostName, 500);
     }
     return myRetVal;
-}    
+}
 
 bool TcpIpConnection::isValidPort(unsigned int aPort)
 {
-    return (aPort > 0 && aPort <= (2<<15));
+    return (aPort > 0 && aPort < (1<<16));
 }
 
 void TcpIpConnection::waitForConnection(std::list<int>& aListenSockets, int aTimeout)
@@ -752,7 +754,7 @@ void TcpIpConnection::waitForConnection(std::list<int>& aListenSockets, int aTim
         if (!FD_ISSET(*it, &myReadSockets))
             it = aListenSockets.erase(it);
         else
-            ++it; 
+            ++it;
  }
 
 }  // namespace ulxr
