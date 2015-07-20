@@ -1,3 +1,6 @@
 language: cpp
+install:
+  - OSNAME=linux make deps
 script: 
-  OSNAME=linux make all test
+  - OSNAME=linux make all
+  - OSNAME=linux make test
