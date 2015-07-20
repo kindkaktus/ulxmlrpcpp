@@ -4,7 +4,7 @@ DEPS:=$(patsubst %,$(SRCS_DIR)/%,$(DEPS))
 
 # @todo: make is distro-agnostic or support more distros at least
 deps:
-	apt-get install libexpat-dev
+	sudo apt-get install libexpat-dev
 
 all release debug: lib
 
