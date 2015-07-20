@@ -1,7 +1,6 @@
 language: cpp
-# @todo add support for other distros
 install:
-  - sudo apt-get install libexpat-dev
-script: 
+  - sudo OSNAME=linux make deps
+script:
   - OSNAME=linux make all
   - OSNAME=linux make test
