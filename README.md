@@ -9,10 +9,10 @@ The library is initially cloned from http://ulxmlrpcpp.sourceforge.net/ for the 
 Quick start
 ----------------
 
-<code>make</code>
+<code>OSNAME=linux make</code>
 
 will build the library and place it under lib directory
 
-<code>make test</code>
+<code>OSNAME=linux make test</code>
 
 will build the library, then build the test suite and then run the test suite against the library
