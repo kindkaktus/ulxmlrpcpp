@@ -1,6 +1,6 @@
 language: cpp
 install:
-  - OSNAME=linux make deps
+  - sudo apt-get install libexpat-dev
 script: 
   - OSNAME=linux make all
   - OSNAME=linux make test
