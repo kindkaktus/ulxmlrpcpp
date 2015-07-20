@@ -1,4 +1,5 @@
 language: cpp
+# @todo add support for other distros
 install:
   - sudo apt-get install libexpat-dev
 script: 
