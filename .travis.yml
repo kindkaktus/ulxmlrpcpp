@@ -1,0 +1,3 @@
+language: cpp
+script: 
+  OSNAME=linux make all test
