@@ -1,5 +1,6 @@
 ulxmlrpcpp
 ==========
+[![Build Status](https://travis-ci.org/kindkaktus/ulxmlrpcpp.svg?branch=master)](https://travis-ci.org/kindkaktus/ulxmlrpcpp)
 
 Ulxmlrpcpp is a lightweight C++ XML-RPC library
 
