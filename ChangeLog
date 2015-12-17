@@ -1,7 +1,7 @@
                             ulxmlrpcpp history
                             ------------------
 
-2015-03-31   1.7.5.p1 by Andrei Korostelev
+2015-12-17   1.7.5.p1 by Andrei Korostelev
   - ADDED Multi-process XMLRPC server (based on funtik::MultiProcessRpcServer from contrib)
   - ADDED IPv6 support
   - CHANGED (cleanup) Dropped wbxml_mode functionality, MultiThreadRpcServer, HttpServer, HttpClient, Log4j, chunked transfer support, string macros and more
@@ -12,7 +12,7 @@
   - ADDED support for OpenBSD and for Linux
   - FIXED resolved memleaks in TcpIpConnection and SSLConnection classes
   - CHANGED dropped support for HTTP persisent connections. Being quite a useful feature to improve communication performance it is rather complex to implement it correctly (e.g. garbage-collecting timedout server-side connections; client should then correctly handle such a timed-out connections...). This change basically caused downgrade from HTTP/1.1 to HTTP/1.0
-  - CHANGED A lot of smaller changes/fixes
+  - CHANGED A lot of minor changes/fixes
 
 
 2010-01-06  1.7.5

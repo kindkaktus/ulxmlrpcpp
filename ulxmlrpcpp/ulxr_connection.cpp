@@ -125,7 +125,8 @@ namespace ulxr
         FD_SET((unsigned) fd_handle, &wfd);
         int ready;
 
-        wait.tv_sec = getTimeout();
+        const unsigned myTimeoutSec = getTimeout();
+        wait.tv_sec = myTimeoutSec;
         wait.tv_usec = 0;
 
         while((ready = select(fd_handle+1, 0, &wfd, 0, &wait)) < 0)
@@ -133,7 +134,7 @@ namespace ulxr
           if(errno == EINTR || errno == EAGAIN)
           {
             // signal received, continue select
-            wait.tv_sec = getTimeout();
+            wait.tv_sec = myTimeoutSec;
             wait.tv_usec = 0;
             continue;
           }
@@ -141,7 +142,7 @@ namespace ulxr
              throw ConnectionException(SystemError, "Could not perform select() call: " + getErrorString(getLastError()), 500);
         }
         if(ready == 0)
-          throw ConnectionException(SystemError, "Timeout while attempting to write.", 500);
+          throw ConnectionException(SystemError, "Timeout while attempting to write (after " + toString(myTimeoutSec) + "seconds.", 500);
 
         if(FD_ISSET(fd_handle, &wfd))
         {
@@ -221,8 +222,9 @@ namespace ulxr
       {
         ULXR_TRACE("read 3a");
 
+        const unsigned myTimeoutSec = getTimeout();
         timeval wait;
-        wait.tv_sec = getTimeout();
+        wait.tv_sec = myTimeoutSec;
         wait.tv_usec = 0;
         int ready;
         while((ready = ::select(fd_handle+1, &rfd, 0, 0, &wait)) < 0)
@@ -231,7 +233,7 @@ namespace ulxr
           if (errno == EINTR || errno == EAGAIN)
           {
             // signal received, continue select
-             wait.tv_sec = getTimeout();
+             wait.tv_sec = myTimeoutSec;
              wait.tv_usec = 0;
              continue;
           }
@@ -246,7 +248,7 @@ namespace ulxr
         ULXR_TRACE("read 4");
         if(ready == 0)
           throw ConnectionException(SystemError,
-                                    "Timeout while attempting to read (using select).", 500);
+                                    "Timeout while attempting to read (after " + toString(myTimeoutSec) + " seconds).", 500);
 
         ULXR_TRACE("read 5");
 
