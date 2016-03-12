@@ -216,14 +216,22 @@ struct ExecTime
 ////////////////////////////////////////////////////////////////////////
 int main(int argc, char **argv)
 {
-    const std::string ipv4 = "127.0.0.1";
-    const std::string ipv6 = "::1";
-    const unsigned port = 32000;
-    bool secure = haveOption(argc, argv, "ssl");
-    bool myIsIpv4 = haveOption(argc, argv, "ipv4");
+    // parse command-line args
+    bool myIpv4Only = haveOption(argc, argv, "ipv4-only");
+    bool myConnectToIpv4 = haveOption(argc, argv, "connect-ipv4") || myIpv4Only;
+    bool myUseSsl = haveOption(argc, argv, "ssl");
     bool myIsPerformanceTest = haveOption(argc, argv, "performance");
 
-    std::cout << "Prepare to serve " << (secure ? "secured" : "unsecured") << " rpc requests at " << ipv4 << ":" << port << ", " << ipv6 << ":" << port << std::endl;
+    const std::string ipv4 = "127.0.0.1";
+    const std::string ipv6 = myIpv4Only? "" : "::1";
+    const unsigned port = 32000;
+
+    std::cout << "Prepare to serve " << (myUseSsl ? "secured" : "unsecured") << " rpc requests at " << ipv4 << ":" << port;
+    if (!myIpv4Only)
+    {
+        std::cout << ", " << ipv6 << ":" << port;
+    }
+    std::cout << std::endl;
 
     ulxr::IP myIP;
     myIP.ipv4 = ipv4;
@@ -234,7 +242,7 @@ int main(int argc, char **argv)
     {
         // Setup server
         std::auto_ptr<ulxr::TcpIpConnection> mySvrConn;
-        if (secure)
+        if (myUseSsl)
         {
             ulxr::SSLConnection *ssl = new ulxr::SSLConnection (myIP, port, false);
             ssl->setCryptographyData("password", "foo-cert.pem", "foo-cert.pem");
@@ -266,12 +274,12 @@ int main(int argc, char **argv)
         const ExecTime myExpectedExecTime(1000, 5000, 10000);
         const size_t myNumCalls = myIsPerformanceTest ? myExpectedExecTime.numCalls : 1;
 
-        std::cout << "Prepare to request " << (secure ? "secured" : "unsecured") << " communication to " << (myIsIpv4 ? ipv4 : ipv6) << ":" << port << std::endl;
+        std::cout << "Prepare to request " << (myUseSsl ? "secured" : "unsecured") << " communication to " << (myConnectToIpv4 ? ipv4 : ipv6) << ":" << port << std::endl;
         std::auto_ptr<ulxr::TcpIpConnection> myClientConn;
-        if (secure)
-            myClientConn.reset(new ulxr::SSLConnection (myIsIpv4 ? ipv4 : ipv6, port, false));
+        if (myUseSsl)
+            myClientConn.reset(new ulxr::SSLConnection (myConnectToIpv4 ? ipv4 : ipv6, port, false));
         else
-            myClientConn.reset(new ulxr::TcpIpConnection (myIsIpv4 ? ipv4 : ipv6, port));
+            myClientConn.reset(new ulxr::TcpIpConnection (myConnectToIpv4 ? ipv4 : ipv6, port));
         myClientConn->setTcpNoDelay(true);
         ulxr::HttpProtocol myClientProto(myClientConn.get());
         ulxr::Requester myClient(&myClientProto);
@@ -289,7 +297,7 @@ int main(int argc, char **argv)
             elapsed += (double)usecs/(double)1000;
 
             std::cout << "Finished. Elapsed Time for " << myNumCalls << " calls: " << (int)elapsed << " msec\n";
-            TEST_ASSERT((int)elapsed < myExpectedExecTime.get(secure));
+            TEST_ASSERT((int)elapsed < myExpectedExecTime.get(myUseSsl));
         }
     }
     catch(ulxr::Exception &ex)
