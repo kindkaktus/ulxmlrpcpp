@@ -37,66 +37,66 @@
 
 int main(int argc, char ** argv)
 {
-  int success = 0;
-  try
-  {
-    ulxr::Array arr;
-    arr.addItem(ulxr::Integer());
-    arr.addItem(ulxr::Boolean());
-    arr.addItem(ulxr::RpcString());
-    arr.addItem(ulxr::Double());
-    arr.addItem(ulxr::DateTime());
-    arr.addItem(ulxr::Base64());
-    arr.addItem(ulxr::Integer());
-    arr.addItem(ulxr::Boolean());
-    arr.addItem(ulxr::RpcString());
-    arr.addItem(ulxr::Double());
-    arr.addItem(ulxr::DateTime());
-    arr.addItem(ulxr::Base64());
-    arr.addItem(ulxr::Integer());
-    arr.addItem(ulxr::Boolean());
-    arr.addItem(ulxr::RpcString());
-    arr.addItem(ulxr::Double());
-    arr.addItem(ulxr::DateTime());
-    arr.addItem(ulxr::Base64());
-    arr.addItem(ulxr::Integer());
-    arr.addItem(ulxr::Boolean());
-    arr.addItem(ulxr::RpcString());
-    arr.addItem(ulxr::Double());
-    arr.addItem(ulxr::DateTime());
-    arr.addItem(ulxr::Base64());
-
-    const unsigned count = 5000;
-
-////////////////////////////////////////////////////////////////
-
-    std::cout << "Starting time measuring for generating xml data\n";
-
-    std::string us;
-    time_t starttime = time(0);
-    for (unsigned i1 = 0; i1 < count; ++i1)
+    int success = 0;
+    try
     {
-       us = arr.getXml();
-    }
-    std::cout << "Size of xml string in bytes: " << us.length() << std::endl;
+        ulxr::Array arr;
+        arr.addItem(ulxr::Integer());
+        arr.addItem(ulxr::Boolean());
+        arr.addItem(ulxr::RpcString());
+        arr.addItem(ulxr::Double());
+        arr.addItem(ulxr::DateTime());
+        arr.addItem(ulxr::Base64());
+        arr.addItem(ulxr::Integer());
+        arr.addItem(ulxr::Boolean());
+        arr.addItem(ulxr::RpcString());
+        arr.addItem(ulxr::Double());
+        arr.addItem(ulxr::DateTime());
+        arr.addItem(ulxr::Base64());
+        arr.addItem(ulxr::Integer());
+        arr.addItem(ulxr::Boolean());
+        arr.addItem(ulxr::RpcString());
+        arr.addItem(ulxr::Double());
+        arr.addItem(ulxr::DateTime());
+        arr.addItem(ulxr::Base64());
+        arr.addItem(ulxr::Integer());
+        arr.addItem(ulxr::Boolean());
+        arr.addItem(ulxr::RpcString());
+        arr.addItem(ulxr::Double());
+        arr.addItem(ulxr::DateTime());
+        arr.addItem(ulxr::Base64());
 
-    time_t endtime = time(0);
-    time_t mins = (endtime - starttime) / 60;
-    time_t secs = (endtime - starttime) % 60;
-    std::cout << "Time needed for xml (ref: 95us): " << mins << ":"
-              << secs << std::endl;
+        const unsigned count = 5000;
 
-   
 ////////////////////////////////////////////////////////////////
 
-  /* Ratio val1_server/client:
-     4000 runs, debug output in file:
-         xml:   130s
-   */
-  }
-  catch(...)
-  {
-    success = 1;
-  }
-  return success;
+        std::cout << "Starting time measuring for generating xml data\n";
+
+        std::string us;
+        time_t starttime = time(0);
+        for (unsigned i1 = 0; i1 < count; ++i1)
+        {
+            us = arr.getXml();
+        }
+        std::cout << "Size of xml string in bytes: " << us.length() << std::endl;
+
+        time_t endtime = time(0);
+        time_t mins = (endtime - starttime) / 60;
+        time_t secs = (endtime - starttime) % 60;
+        std::cout << "Time needed for xml (ref: 95us): " << mins << ":"
+                  << secs << std::endl;
+
+
+////////////////////////////////////////////////////////////////
+
+        /* Ratio val1_server/client:
+           4000 runs, debug output in file:
+               xml:   130s
+         */
+    }
+    catch(...)
+    {
+        success = 1;
+    }
+    return success;
 }

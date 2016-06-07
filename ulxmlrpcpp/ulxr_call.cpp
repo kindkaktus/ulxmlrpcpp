@@ -41,132 +41,132 @@
 namespace ulxr {
 
 
- MethodCall::MethodCall(const char *name)
-{
-  methodname = name;
-}
+    MethodCall::MethodCall(const char *name)
+    {
+        methodname = name;
+    }
 
 
- MethodCall::MethodCall()
-{
-}
+    MethodCall::MethodCall()
+    {
+    }
 
 
- MethodCall::~MethodCall()
-{
-}
+    MethodCall::~MethodCall()
+    {
+    }
 
 
- MethodCall::MethodCall(const std::string &name)
-{
-  methodname = name;
-}
+    MethodCall::MethodCall(const std::string &name)
+    {
+        methodname = name;
+    }
 
 
-MethodCall&  /**/ MethodCall::addParam (const Value &val)
-{
-  params.push_back(val);
-  return *this;
-}
+    MethodCall&  /**/ MethodCall::addParam (const Value &val)
+    {
+        params.push_back(val);
+        return *this;
+    }
 
 
-MethodCall&  /**/ MethodCall::setParam (const Value &val)
-{
-  clear();
-  return addParam(val);
-}
+    MethodCall&  /**/ MethodCall::setParam (const Value &val)
+    {
+        clear();
+        return addParam(val);
+    }
 
 
-MethodCall&  /**/ MethodCall::setParam (unsigned ind, const Value &val)
-{
-  if (ind < params.size() )
-  {
-    params[ind] = val;
-    return *this;
-  }
+    MethodCall&  /**/ MethodCall::setParam (unsigned ind, const Value &val)
+    {
+        if (ind < params.size() )
+        {
+            params[ind] = val;
+            return *this;
+        }
 
-  throw ParameterException(InvalidMethodParameterError,
-                           "MethodCall::setParam: Parameter index " + toString(ind) + " in " + getSignature() + " method is out-of-range");
-}
-
-
-
-std::string MethodCall::getSignature(bool name_braces) const
-{
-  std::string s;
-  if (name_braces)
-    s += methodname + "(";
-
-  bool comma = params.size() >= 1;
-  for (unsigned i = 0; i < params.size(); ++i) {
-    if (comma && i != 0)
-      s += ',';
-    s += params[i].getSignature();
-  }
-
-  if (name_braces)
-     s += ")";
-  return s;
-}
-
-
-std::string MethodCall::getXml(int indent) const
-{
-  std::string ind = getXmlIndent(indent);
-  std::string ind1 = getXmlIndent(indent+1);
-  std::string ind2 = getXmlIndent(indent+2);
-  std::string s = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + getXmlLinefeed();
-  s += ind + "<methodCall>" + getXmlLinefeed();
-  s += ind1 + "<methodName>"+methodname+"</methodName>" + getXmlLinefeed();
-
-  s += ind1 + "<params>" + getXmlLinefeed();
-
-  for (std::vector<Value>::const_iterator
-         it = params.begin(); it != params.end(); ++it)
-  {
-    s += ind2 + "<param>" + getXmlLinefeed();
-    s += (*it).getXml(indent+3) + getXmlLinefeed();
-    s += ind2 + "</param>" + getXmlLinefeed();
-  }
-
-  s += ind1 + "</params>" + getXmlLinefeed();
-  s += ind + "</methodCall>";
-  return s;
-}
+        throw ParameterException(InvalidMethodParameterError,
+                                 "MethodCall::setParam: Parameter index " + toString(ind) + " in " + getSignature() + " method is out-of-range");
+    }
 
 
 
-Value MethodCall::getParam(unsigned ind) const
-{
-  if (ind < params.size() )
-    return params[ind];
+    std::string MethodCall::getSignature(bool name_braces) const
+    {
+        std::string s;
+        if (name_braces)
+            s += methodname + "(";
 
-  throw ParameterException(InvalidMethodParameterError,
-                           "MethodCall::getParam: Parameter index " + toString(ind) + " in " + getSignature() + " method is out-of-range.");
-}
+        bool comma = params.size() >= 1;
+        for (unsigned i = 0; i < params.size(); ++i) {
+            if (comma && i != 0)
+                s += ',';
+            s += params[i].getSignature();
+        }
 
-unsigned MethodCall::numParams() const
-{
-  return params.size();
-}
-
-
-void MethodCall::clear()
-{
-  params.clear();
-}
+        if (name_braces)
+            s += ")";
+        return s;
+    }
 
 
-std::string MethodCall::getMethodName() const
-{
-  return methodname;
-}
+    std::string MethodCall::getXml(int indent) const
+    {
+        std::string ind = getXmlIndent(indent);
+        std::string ind1 = getXmlIndent(indent+1);
+        std::string ind2 = getXmlIndent(indent+2);
+        std::string s = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + getXmlLinefeed();
+        s += ind + "<methodCall>" + getXmlLinefeed();
+        s += ind1 + "<methodName>"+methodname+"</methodName>" + getXmlLinefeed();
+
+        s += ind1 + "<params>" + getXmlLinefeed();
+
+        for (std::vector<Value>::const_iterator
+                it = params.begin(); it != params.end(); ++it)
+        {
+            s += ind2 + "<param>" + getXmlLinefeed();
+            s += (*it).getXml(indent+3) + getXmlLinefeed();
+            s += ind2 + "</param>" + getXmlLinefeed();
+        }
+
+        s += ind1 + "</params>" + getXmlLinefeed();
+        s += ind + "</methodCall>";
+        return s;
+    }
 
 
-void MethodCall::setMethodName(const std::string &nm)
-{
-  methodname = nm;
-}
+
+    Value MethodCall::getParam(unsigned ind) const
+    {
+        if (ind < params.size() )
+            return params[ind];
+
+        throw ParameterException(InvalidMethodParameterError,
+                                 "MethodCall::getParam: Parameter index " + toString(ind) + " in " + getSignature() + " method is out-of-range.");
+    }
+
+    unsigned MethodCall::numParams() const
+    {
+        return params.size();
+    }
+
+
+    void MethodCall::clear()
+    {
+        params.clear();
+    }
+
+
+    std::string MethodCall::getMethodName() const
+    {
+        return methodname;
+    }
+
+
+    void MethodCall::setMethodName(const std::string &nm)
+    {
+        methodname = nm;
+    }
 
 
 }  // namespace ulxr

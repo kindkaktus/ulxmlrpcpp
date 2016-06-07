@@ -36,78 +36,78 @@
 namespace ulxr {
 
 
-class Value;
-class ValueBase;
-class Void;
+    class Value;
+    class ValueBase;
+    class Void;
 
 
-/** Convenience class to generate larger signature strings for RPC methods:
-  *  Usage examples:
-  * <pre>
-  *    Signature()
-  *         .addParam(Integer())
-  *         .addParam(String())
-  *         .....
-  *
-  *    Signature(Integer()).addParam(String())
-  *         .....
-  *    Signature() << RpcString() << Integer();
-  * </pre>
-  * @ingroup grp_ulxr_rpc
-  */
-class  Signature
-{
-  public:
+    /** Convenience class to generate larger signature strings for RPC methods:
+      *  Usage examples:
+      * <pre>
+      *    Signature()
+      *         .addParam(Integer())
+      *         .addParam(String())
+      *         .....
+      *
+      *    Signature(Integer()).addParam(String())
+      *         .....
+      *    Signature() << RpcString() << Integer();
+      * </pre>
+      * @ingroup grp_ulxr_rpc
+      */
+    class  Signature
+    {
+    public:
 
-  /** Constructs an empty signature
-    */
-    Signature();
+        /** Constructs an empty signature
+          */
+        Signature();
 
-  /** Constructs a signature from a single parameter
-    * @param  s  rpc name of the parameter (int, string, ...)
-    */
-    Signature(const std::string &s);
+        /** Constructs a signature from a single parameter
+          * @param  s  rpc name of the parameter (int, string, ...)
+          */
+        Signature(const std::string &s);
 
-  /** Constructs a signature from a single parameter
-    * @param  v  rpc value
-    */
-    Signature(const ValueBase &v);
+        /** Constructs a signature from a single parameter
+          * @param  v  rpc value
+          */
+        Signature(const ValueBase &v);
 
-  /** Constructs a signature from a void type.
-    * Only exists for completeness and yields the same as the default constructor.
-    * @param  v  void value
-    */
-    Signature(const Void &v);
+        /** Constructs a signature from a void type.
+          * Only exists for completeness and yields the same as the default constructor.
+          * @param  v  void value
+          */
+        Signature(const Void &v);
 
-  /** Adds another parameter to the signature
-    * @param  s  rpc name of the parameter
-    */
-    Signature& addParam(const std::string &s);
+        /** Adds another parameter to the signature
+          * @param  s  rpc name of the parameter
+          */
+        Signature& addParam(const std::string &s);
 
-  /** Adds another parameter to the signature
-    * @param  v  rpc value
-    */
-    Signature& addParam(const Value &v);
+        /** Adds another parameter to the signature
+          * @param  v  rpc value
+          */
+        Signature& addParam(const Value &v);
 
-  /** Adds another parameter to the signature
-    * @param  s  rpc name of the parameter
-    */
-    Signature& operator<<(const std::string &s);
+        /** Adds another parameter to the signature
+          * @param  s  rpc name of the parameter
+          */
+        Signature& operator<<(const std::string &s);
 
-  /** Adds another parameter to the signature
-    * @param  v  rpc value
-    */
-    Signature& operator<<(const Value &v);
+        /** Adds another parameter to the signature
+          * @param  v  rpc value
+          */
+        Signature& operator<<(const Value &v);
 
-  /** Return the complete signature string
-    * @return signature
-    */
-    std::string getString() const;
+        /** Return the complete signature string
+          * @return signature
+          */
+        std::string getString() const;
 
-  private:
+    private:
 
-    std::string     sig;
-};
+        std::string     sig;
+    };
 
 
 }  // namespace ulxr

@@ -61,158 +61,158 @@
 namespace ulxr {
 
 
-MultiProcessRpcServerError::MultiProcessRpcServerError(const std::string& what_arg): _what(what_arg)
-{}
+    MultiProcessRpcServerError::MultiProcessRpcServerError(const std::string& what_arg): _what(what_arg)
+    {}
 
-MultiProcessRpcServerError::~MultiProcessRpcServerError() throw()
-{}
+    MultiProcessRpcServerError::~MultiProcessRpcServerError() throw()
+    {}
 
-const char*  MultiProcessRpcServerError::what () const throw()
-{
-  return this->_what.c_str();
-}
-
-
-MultiProcessRpcServer::MultiProcessRpcServer(ulxr::Protocol* poProtocol,  size_t aNumProcesses)
-:   theNumProcesses(aNumProcesses)
-  , theDispatcher(NULL)
-{
-    if (aNumProcesses == 0)
-        throw MultiProcessRpcServerError("At least handler process expected");
-    theDispatcher = new ulxr::Dispatcher(poProtocol);
-}
-
-MultiProcessRpcServer::~MultiProcessRpcServer()
-{
-    terminateAllHandlers();
-    waitForAllHandlersFinish();
-    delete theDispatcher;
-}
-
-void MultiProcessRpcServer::preProcessCall(MethodCall & aCall, const Protocol *aConnectionProtocol)
-{}
-
-void MultiProcessRpcServer::preProcessResponse(MethodResponse &/*resp*/)
-{}
-
-
-void MultiProcessRpcServer::startChildLoop()
-{
-   ULXR_TRACE("startChildLoop");
-
-   Protocol* protocol = theDispatcher->getProtocol();
-   Dispatcher waiter(protocol);
-
-    while(true)
+    const char*  MultiProcessRpcServerError::what () const throw()
     {
-        try
-        {
-            ULXR_TRACE("Process ");
-            MethodCall call = waiter.waitForCall();
+        return this->_what.c_str();
+    }
 
-            ULXR_TRACE("Process ");
-            preProcessCall(call, waiter.getProtocol());
-            MethodResponse resp = theDispatcher->dispatchCall(call);
-            preProcessResponse(resp);
 
-            protocol->sendRpcResponse(resp);
-            protocol->closeConnection();
-        }
-        catch (ConnectionException &ex)
-        {
-          if (protocol->isOpen())
-          {
-            try
-            {
-               MethodResponse resp(ex.getStatusCode(), ex.why() );
-               protocol->sendRpcResponse(resp);
-            }
-            catch(...)
-            {}
-            protocol->closeConnection();
-          }
-        }
-        catch(Exception& ex)
-        {
-          if (protocol->isOpen())
-          {
-            try
-            {
-                MethodResponse resp(1, ex.why() );
-                protocol->sendRpcResponse(resp);
-            }
-            catch(...)
-            {}
-            protocol->closeConnection();
-          }
-        }
-        catch(std::exception& ex)
-        {
-          if (protocol->isOpen())
-          {
-            try
-            {
-                MethodResponse resp(1, ex.what() );
-                protocol->sendRpcResponse(resp);
-            }
-            catch(...)
-            {}
-            protocol->closeConnection();
-          }
-        }
-        catch(...)
-        {
-          if (protocol->isOpen())
-          {
-            try
-            {
-                MethodResponse resp(1, "Unknown error occured" );
-                protocol->sendRpcResponse(resp);
-            }
-            catch(...)
-            {}
-            protocol->closeConnection();
-          }
-        }
-
-    } // while true
-}
-
-void  MultiProcessRpcServer::start()
-{
-    if (!theDispatcher)
-        throw MultiProcessRpcServerError("Dispatcher not initialized");
-    if (!theDispatcher->getProtocol())
-        throw MultiProcessRpcServerError("Protocol not initialized");
-
-    ULXR_TRACE(("Starting Multi-Process XMLRPC Server with " + toString(theNumProcesses) + " processes.").c_str());
-
-    for (unsigned int i = 0; i < theNumProcesses; ++i)
+    MultiProcessRpcServer::MultiProcessRpcServer(ulxr::Protocol* poProtocol,  size_t aNumProcesses)
+        :   theNumProcesses(aNumProcesses)
+        , theDispatcher(NULL)
     {
-        pid_t ppid = fork();
-        if (ppid == -1)
-            throw MultiProcessRpcServerError("Cannot create handler process.");
+        if (aNumProcesses == 0)
+            throw MultiProcessRpcServerError("At least handler process expected");
+        theDispatcher = new ulxr::Dispatcher(poProtocol);
+    }
 
-        if (ppid == 0)// child
+    MultiProcessRpcServer::~MultiProcessRpcServer()
+    {
+        terminateAllHandlers();
+        waitForAllHandlersFinish();
+        delete theDispatcher;
+    }
+
+    void MultiProcessRpcServer::preProcessCall(MethodCall & aCall, const Protocol *aConnectionProtocol)
+    {}
+
+    void MultiProcessRpcServer::preProcessResponse(MethodResponse &/*resp*/)
+    {}
+
+
+    void MultiProcessRpcServer::startChildLoop()
+    {
+        ULXR_TRACE("startChildLoop");
+
+        Protocol* protocol = theDispatcher->getProtocol();
+        Dispatcher waiter(protocol);
+
+        while(true)
         {
-            
             try
             {
-                startChildLoop();
-            }
-            catch (...)
-            {}
-            _exit(1);
-        }
+                ULXR_TRACE("Process ");
+                MethodCall call = waiter.waitForCall();
 
-         // parent
-        theProcessPool.push_back(ppid);
-      }
-      if (!theProcessPool.empty())
-      {
-          // from now childern serve connections so the parent shall phase out
-          theDispatcher->getProtocol()->stopServing();
-      }
+                ULXR_TRACE("Process ");
+                preProcessCall(call, waiter.getProtocol());
+                MethodResponse resp = theDispatcher->dispatchCall(call);
+                preProcessResponse(resp);
+
+                protocol->sendRpcResponse(resp);
+                protocol->closeConnection();
+            }
+            catch (ConnectionException &ex)
+            {
+                if (protocol->isOpen())
+                {
+                    try
+                    {
+                        MethodResponse resp(ex.getStatusCode(), ex.why() );
+                        protocol->sendRpcResponse(resp);
+                    }
+                    catch(...)
+                    {}
+                    protocol->closeConnection();
+                }
+            }
+            catch(Exception& ex)
+            {
+                if (protocol->isOpen())
+                {
+                    try
+                    {
+                        MethodResponse resp(1, ex.why() );
+                        protocol->sendRpcResponse(resp);
+                    }
+                    catch(...)
+                    {}
+                    protocol->closeConnection();
+                }
+            }
+            catch(std::exception& ex)
+            {
+                if (protocol->isOpen())
+                {
+                    try
+                    {
+                        MethodResponse resp(1, ex.what() );
+                        protocol->sendRpcResponse(resp);
+                    }
+                    catch(...)
+                    {}
+                    protocol->closeConnection();
+                }
+            }
+            catch(...)
+            {
+                if (protocol->isOpen())
+                {
+                    try
+                    {
+                        MethodResponse resp(1, "Unknown error occured" );
+                        protocol->sendRpcResponse(resp);
+                    }
+                    catch(...)
+                    {}
+                    protocol->closeConnection();
+                }
+            }
+
+        } // while true
+    }
+
+    void  MultiProcessRpcServer::start()
+    {
+        if (!theDispatcher)
+            throw MultiProcessRpcServerError("Dispatcher not initialized");
+        if (!theDispatcher->getProtocol())
+            throw MultiProcessRpcServerError("Protocol not initialized");
+
+        ULXR_TRACE(("Starting Multi-Process XMLRPC Server with " + toString(theNumProcesses) + " processes.").c_str());
+
+        for (unsigned int i = 0; i < theNumProcesses; ++i)
+        {
+            pid_t ppid = fork();
+            if (ppid == -1)
+                throw MultiProcessRpcServerError("Cannot create handler process.");
+
+            if (ppid == 0)// child
+            {
+
+                try
+                {
+                    startChildLoop();
+                }
+                catch (...)
+                {}
+                _exit(1);
+            }
+
+            // parent
+            theProcessPool.push_back(ppid);
+        }
+        if (!theProcessPool.empty())
+        {
+            // from now childern serve connections so the parent shall phase out
+            theDispatcher->getProtocol()->stopServing();
+        }
     }
 
     void MultiProcessRpcServer::terminateAllHandlers()
@@ -239,16 +239,16 @@ void  MultiProcessRpcServer::start()
 
     std::vector<pid_t> MultiProcessRpcServer::getHandlers() const
     {
-      return theProcessPool;
+        return theProcessPool;
     }
 
 
     void
     MultiProcessRpcServer::addMethod (MethodAdder::StaticMethodCall_t adr,
-                                     const std::string &ret_signature,
-                                     const std::string &name,
-                                     const std::string &signature,
-                                     const std::string &help)
+                                      const std::string &ret_signature,
+                                      const std::string &name,
+                                      const std::string &signature,
+                                      const std::string &help)
     {
         theDispatcher->addMethod(adr, ret_signature, name, signature, help);
     }
@@ -256,63 +256,63 @@ void  MultiProcessRpcServer::start()
 
     void
     MultiProcessRpcServer::addMethod (MethodAdder::DynamicMethodCall_t wrapper,
-                                     const std::string &ret_signature,
-                                     const std::string &name,
-                                     const std::string &signature,
-                                     const std::string &help)
+                                      const std::string &ret_signature,
+                                      const std::string &name,
+                                      const std::string &signature,
+                                      const std::string &help)
     {
-      theDispatcher->addMethod(wrapper, ret_signature, name, signature, help);
+        theDispatcher->addMethod(wrapper, ret_signature, name, signature, help);
     }
 
 
     void
     MultiProcessRpcServer::addMethod (MethodAdder::SystemMethodCall_t adr,
-                                     const std::string &ret_signature,
-                                     const std::string &name,
-                                     const std::string &signature,
-                                     const std::string &help)
+                                      const std::string &ret_signature,
+                                      const std::string &name,
+                                      const std::string &signature,
+                                      const std::string &help)
     {
-      theDispatcher->addMethod(adr, ret_signature, name, signature, help);
+        theDispatcher->addMethod(adr, ret_signature, name, signature, help);
     }
 
 
     void
     MultiProcessRpcServer::addMethod (MethodAdder::StaticMethodCall_t adr,
-                                     const Signature &ret_signature,
-                                     const std::string &name,
-                                     const Signature &signature,
-                                     const std::string &help)
+                                      const Signature &ret_signature,
+                                      const std::string &name,
+                                      const Signature &signature,
+                                      const std::string &help)
     {
-      theDispatcher->addMethod(adr, ret_signature, name, signature, help);
+        theDispatcher->addMethod(adr, ret_signature, name, signature, help);
     }
 
 
     void
     MultiProcessRpcServer::addMethod (MethodAdder::DynamicMethodCall_t wrapper,
-                                     const Signature &ret_signature,
-                                     const std::string &name,
-                                     const Signature &signature,
-                                     const std::string &help)
+                                      const Signature &ret_signature,
+                                      const std::string &name,
+                                      const Signature &signature,
+                                      const std::string &help)
     {
-      theDispatcher->addMethod(wrapper, ret_signature, name, signature, help);
+        theDispatcher->addMethod(wrapper, ret_signature, name, signature, help);
     }
 
 
     void
     MultiProcessRpcServer::addMethod (MethodAdder::SystemMethodCall_t adr,
-                                     const Signature &ret_signature,
-                                     const std::string &name,
-                                     const Signature &signature,
-                                     const std::string &help)
+                                      const Signature &ret_signature,
+                                      const std::string &name,
+                                      const Signature &signature,
+                                      const std::string &help)
     {
-      theDispatcher->addMethod(adr, ret_signature, name, signature, help);
+        theDispatcher->addMethod(adr, ret_signature, name, signature, help);
     }
 
 
     void
     MultiProcessRpcServer::removeMethod(const std::string &name)
     {
-      theDispatcher->removeMethod(name);
+        theDispatcher->removeMethod(name);
     }
 
 } // namespace ulxr

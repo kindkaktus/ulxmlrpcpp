@@ -40,35 +40,35 @@
 namespace ulxr {
 
 
-/** An xml parser for a MethodResponse.
-  * @ingroup grp_ulxr_parser
-  */
-class  MethodResponseParserBase
-{
- public:
+    /** An xml parser for a MethodResponse.
+      * @ingroup grp_ulxr_parser
+      */
+    class  MethodResponseParserBase
+    {
+    public:
 
- /** Gets the complete MethodResponse after parsing.
-   * @return  the method response
-   */
-  MethodResponse getMethodResponse();
+        /** Gets the complete MethodResponse after parsing.
+          * @return  the method response
+          */
+        MethodResponse getMethodResponse();
 
-  enum RespState
-  {
-    eMethodResponse = ValueParserBase::eValueParserLast,
-    eFault,
-    eParams,
-    eParam,
-    eResponseParserLast
-  };
+        enum RespState
+        {
+            eMethodResponse = ValueParserBase::eValueParserLast,
+            eFault,
+            eParams,
+            eParam,
+            eResponseParserLast
+        };
 
- /** Destroy parser.
-   */
-   virtual ~MethodResponseParserBase();
+        /** Destroy parser.
+          */
+        virtual ~MethodResponseParserBase();
 
- protected:
+    protected:
 
-    Value   method_value;
-};
+        Value   method_value;
+    };
 
 
 }  // namespace ulxr

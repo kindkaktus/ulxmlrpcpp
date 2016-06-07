@@ -93,63 +93,63 @@ namespace ulxr {
 
     void getVersion (int &major, int &minor, int &patch, bool &debug, std::string &/*info*/)
     {
-      std::string s (ULXR_VERSION);
-      std::string num;
+        std::string s (ULXR_VERSION);
+        std::string num;
 
-      std::size_t pos = s.find('.');
-      bool good = true;
-      if (pos != std::string::npos)
-      {
-        num = s.substr(0, pos);
-        if (num.length() == 0)
-          good = false;
-        major = atoi(num.c_str());
-        s.erase(0, pos+1);
-        pos = s.find('.');
-
+        std::size_t pos = s.find('.');
+        bool good = true;
         if (pos != std::string::npos)
         {
-          num = s.substr(0, pos);
-          if (num.length() == 0)
-            good = false;
-          minor = atoi(num.c_str());
-          s.erase(0, pos+1);
+            num = s.substr(0, pos);
+            if (num.length() == 0)
+                good = false;
+            major = atoi(num.c_str());
+            s.erase(0, pos+1);
+            pos = s.find('.');
 
-          if (s.length() == 0)
-            good = false;
-          patch = atoi(s.c_str());
+            if (pos != std::string::npos)
+            {
+                num = s.substr(0, pos);
+                if (num.length() == 0)
+                    good = false;
+                minor = atoi(num.c_str());
+                s.erase(0, pos+1);
+
+                if (s.length() == 0)
+                    good = false;
+                patch = atoi(s.c_str());
+            }
+            else
+                good = false;
         }
         else
-          good = false;
-      }
-      else
-        good = false;
+            good = false;
 
-      if (!good)
-      {
-        major = -1;
-        minor = -1;
-        patch = -1;
-      }
+        if (!good)
+        {
+            major = -1;
+            minor = -1;
+            patch = -1;
+        }
 
-    #ifdef DEBUG
-      debug = true;
-    #else
-      debug = false;
-    #endif
+#ifdef DEBUG
+        debug = true;
+#else
+        debug = false;
+#endif
     }
 
     std::string stripWS(const std::string &s)
     {
-       unsigned start = 0;
-       while (start < s.length() && isspace(s[start]))
-         ++start;
+        unsigned start = 0;
+        while (start < s.length() && isspace(s[start]))
+            ++start;
 
-       unsigned end = s.length();
-       while (end > start && isspace(s[end-1]))
-         --end;
+        unsigned end = s.length();
+        while (end > start && isspace(s[end-1]))
+            --end;
 
-       return s.substr(start, end-start);
+        return s.substr(start, end-start);
     }
 
     std::string toBase64(const std::vector<unsigned char>& anSrc, bool aSingleLine)
@@ -175,8 +175,8 @@ namespace ulxr {
             throw ParameterException(ApplicationError, "toBase64(): BIO_get_mem_ptr failed.");
         }
         size_t myLen = (myEncBuf->data[myEncBuf->length-1] == '\n') ?
-            static_cast<size_t>(myEncBuf->length-1) :
-            static_cast<size_t>(myEncBuf->length);
+                       static_cast<size_t>(myEncBuf->length-1) :
+                       static_cast<size_t>(myEncBuf->length);
         std::string myRetVal(myEncBuf->data, myLen);
         BIO_free_all(myBio);
         return myRetVal;
@@ -214,151 +214,163 @@ namespace ulxr {
 
     std::string xmlEscape(const std::string &str)
     {
-      std::string ret;
-      unsigned prev = 0;
-      unsigned len = str.length();
-      unsigned curs = 0;
-      const char *pc = str.data();
+        std::string ret;
+        unsigned prev = 0;
+        unsigned len = str.length();
+        unsigned curs = 0;
+        const char *pc = str.data();
 
-      while (curs != len)
-      {
-        char c = *pc++;
+        while (curs != len)
+        {
+            char c = *pc++;
 
-        if (c == '&')
-        {
-          ret += str.substr(prev, curs-prev);
-          ret += "&amp;";
-          prev = curs+1;
-        }
-        else if (c == '<')
-        {
-          ret += str.substr(prev, curs-prev);
-          ret += "&lt;";
-          prev = curs+1;
-        }
-        else if (c == '>')
-        {
-          ret += str.substr(prev, curs-prev);
-          ret += "&gt;";
-          prev = curs+1;
-        }
-        else if (c == '\'')
-        {
-          ret += str.substr(prev, curs-prev);
-          ret += "&apos;";
-          prev = curs+1;
-        }
-        else if (c == '"')
-        {
-          ret += str.substr(prev, curs-prev);
-          ret += "&quot;";
-          prev = curs+1;
-        }
-        else if (c == '\n')
-        {
-          ret += str.substr(prev, curs-prev);
-          ret += "&#xA;";
-          prev = curs+1;
-        }
-        else if (c == '\r')
-        {
-          ret += str.substr(prev, curs-prev);
-          ret += "&#xD;";
-          prev = curs+1;
-        }
-        else if (c == '\t')
-        {
-          ret += str.substr(prev, curs-prev);
-          ret += "&#x9;";
-          prev = curs+1;
-        }
-          
+            if (c == '&')
+            {
+                ret += str.substr(prev, curs-prev);
+                ret += "&amp;";
+                prev = curs+1;
+            }
+            else if (c == '<')
+            {
+                ret += str.substr(prev, curs-prev);
+                ret += "&lt;";
+                prev = curs+1;
+            }
+            else if (c == '>')
+            {
+                ret += str.substr(prev, curs-prev);
+                ret += "&gt;";
+                prev = curs+1;
+            }
+            else if (c == '\'')
+            {
+                ret += str.substr(prev, curs-prev);
+                ret += "&apos;";
+                prev = curs+1;
+            }
+            else if (c == '"')
+            {
+                ret += str.substr(prev, curs-prev);
+                ret += "&quot;";
+                prev = curs+1;
+            }
+            else if (c == '\n')
+            {
+                ret += str.substr(prev, curs-prev);
+                ret += "&#xA;";
+                prev = curs+1;
+            }
+            else if (c == '\r')
+            {
+                ret += str.substr(prev, curs-prev);
+                ret += "&#xD;";
+                prev = curs+1;
+            }
+            else if (c == '\t')
+            {
+                ret += str.substr(prev, curs-prev);
+                ret += "&#x9;";
+                prev = curs+1;
+            }
 
-        ++curs;
-      }
-      ret += str.substr(prev, curs-prev);
-      return ret;
+
+            ++curs;
+        }
+        ret += str.substr(prev, curs-prev);
+        return ret;
     }
 
 
     namespace
     {
 
-    std::string charRefDezCont ("0123456789");
-    std::string charRefHexCont ("0123456789aAbBcCdDeEfF");
+        std::string charRefDezCont ("0123456789");
+        std::string charRefHexCont ("0123456789aAbBcCdDeEfF");
 
     }
 
     std::string toString (int aNumber)
-    {  
+    {
         std::ostringstream myOs;
-        myOs << aNumber;             
+        myOs << aNumber;
+        return myOs.str();
+    }
+    std::string toString (long aNumber)
+    {
+        std::ostringstream myOs;
+        myOs << aNumber;
+        return myOs.str();
+    }
+    std::string toString (size_t aNumber)
+    {
+        std::ostringstream myOs;
+        myOs << aNumber;
         return myOs.str();
     }
     std::string toString (unsigned int aNumber)
-    {  
+    {
         std::ostringstream myOs;
-        myOs << aNumber;             
+        myOs << aNumber;
         return myOs.str();
     }
 
 
     void makeLower( std::string &str)
     {
-      for (unsigned i= 0; i < str.length(); ++i)
-          str[i] = tolower(str[i]);
+        for (unsigned i= 0; i < str.length(); ++i)
+            str[i] = tolower(str[i]);
     }
 
 
     void makeUpper( std::string &str)
     {
-      for (unsigned i= 0; i < str.length(); ++i)
-          str[i] = toupper(str[i]);
+        for (unsigned i= 0; i < str.length(); ++i)
+            str[i] = toupper(str[i]);
     }
 
 
     std::string getLastErrorString(unsigned errornum)
     {
-       char errbuf[1024] = {};
-       strerror_r(errornum, errbuf, sizeof(errbuf)-1);
-       return errbuf;
+        char errbuf[1024] = {};
+        strerror_r(errornum, errbuf, sizeof(errbuf)-1);
+        return errbuf;
     }
 
     namespace
     {
-      bool pretty_xml  = false;
+        bool pretty_xml  = false;
     }
 
 
     void enableXmlPrettyPrint(bool pretty)
     {
-      pretty_xml = pretty;
+        pretty_xml = pretty;
     }
 
     namespace
     {
-      static const std::string empty_LF = "";
-      static const std::string normal_LF = "\n";
-      static const std::string empty_Indent = "";
+        static const std::string empty_LF = "";
+        static const std::string normal_LF = "\n";
+        static const std::string empty_Indent = "";
     }
 
     std::string getXmlLinefeed()
     {
-      if (pretty_xml)
-        return normal_LF;
+        if (pretty_xml)
+            return normal_LF;
 
-      else
-        return empty_LF;
+        else
+            return empty_LF;
     }
 
 
     std::string getXmlIndent(unsigned indent)
     {
-      if (pretty_xml)
-        return std::string(indent, ' ');
+        if (pretty_xml)
+            return std::string(indent, ' ');
 
-      else
-        return empty_Indent;
+        else
+            return empty_Indent;
     }
 
 

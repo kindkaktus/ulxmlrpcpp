@@ -51,262 +51,253 @@
 
 namespace ulxr
 {
-
-
     void Connection::init()
     {
-      setIsConnecting(false);
-      connector = 0;
-      ULXR_TRACE("init");
-      fd_handle = -1;
-      current_to = 10;
-      signal (SIGPIPE, SIG_IGN);  // prevent SIGKILL while write()-ing in closing pipe
+        ULXR_TRACE("Connection::init");
+        fd_handle = -1;
+        theRwTimeoutSec = 10;
+        signal (SIGPIPE, SIG_IGN);  // prevent SIGKILL while write()-ing in closing pipe
     }
 
 
-     Connection::Connection()
+    Connection::Connection()
     {
-      ULXR_TRACE("Connection");
-      init();
+        ULXR_TRACE("Connection");
+        init();
     }
 
 
-     Connection::~Connection()
+    Connection::~Connection()
     {
-      ULXR_TRACE("~Connection");
-      try
-      {
-        close();
-      }
-      catch(...)
-      {
-        // forget exception?
-      }
-    //  delete connector;
-      connector = 0;
+        ULXR_TRACE("~Connection");
+        try
+        {
+            close();
+        }
+        catch(...)
+        {
+            // forget exception?
+        }
     }
 
 
     bool Connection::isOpen() const
     {
-      ULXR_TRACE( ((fd_handle >= 0)  ? "isOpen: true"
-                                     : "isOpen: false"));
-      return fd_handle >= 0;
+        return fd_handle >= 0;
     }
 
 
     size_t Connection::low_level_write(char const *buff, long len)
     {
-      ULXR_TRACE("low_level_write " << len);
-       return ::write(fd_handle, buff, len);
+        ULXR_TRACE("Connection::low_level_write " << len);
+        return ::write(fd_handle, buff, len);
     }
 
 
     void Connection::write(char const *buff, long len)
     {
-      ULXR_TRACE("write " << len);
-      ULXR_DWRITE_WRITE(buff, len);
-      ULXR_DOUT_WRITE("");
+        ULXR_TRACE("Connection::write " << len);
+        ULXR_DWRITE_WRITE(buff, len);
+        ULXR_DOUT_WRITE("");
 
-      long written;
+        long written;
 
-      if (!buff || !isOpen())
-        throw RuntimeException(ApplicationError, "Precondition failed for write() call");
+        if (!buff || !isOpen())
+            throw RuntimeException(ApplicationError, "Precondition failed for write() call");
 
-      if (len == 0)
-        return;
+        if (len == 0)
+            return;
 
-      fd_set wfd;
-      timeval wait;
+        fd_set wfd;
+        timeval wait;
 
-      while (buff != 0 && len > 0)
-      {
-        FD_ZERO(&wfd);
-        FD_SET((unsigned) fd_handle, &wfd);
-        int ready;
-
-        const unsigned myTimeoutSec = getTimeout();
-        wait.tv_sec = myTimeoutSec;
-        wait.tv_usec = 0;
-
-        while((ready = select(fd_handle+1, 0, &wfd, 0, &wait)) < 0)
+        while (buff != 0 && len > 0)
         {
-          if(errno == EINTR || errno == EAGAIN)
-          {
-            // signal received, continue select
+            FD_ZERO(&wfd);
+            FD_SET((unsigned) fd_handle, &wfd);
+            int ready;
+
+            const unsigned myTimeoutSec = getTimeout();
             wait.tv_sec = myTimeoutSec;
             wait.tv_usec = 0;
-            continue;
-          }
-          else
-             throw ConnectionException(SystemError, "Could not perform select() call: " + getErrorString(getLastError()), 500);
-        }
-        if(ready == 0)
-          throw ConnectionException(SystemError, "Timeout while attempting to write (after " + toString(myTimeoutSec) + "seconds.", 500);
 
-        if(FD_ISSET(fd_handle, &wfd))
-        {
-          if ( (written = low_level_write(buff, len)) < 0)
-          {
-            switch(getLastError())
+            while((ready = select(fd_handle+1, 0, &wfd, 0, &wait)) < 0)
             {
-              case EAGAIN:
-              case EINTR:
-                errno = 0;
-              continue;
-
-              case EPIPE:
-                close();
-                throw ConnectionException(TransportError,
-                                           "Attempt to write to a connection already closed by the peer", 500);
-              /*break; */
-
-              default:
-                throw ConnectionException(SystemError,
-                                          "Could not perform low_level_write() call: " + getErrorString(getLastError()), 500);
-
+                if(errno == EINTR || errno == EAGAIN)
+                {
+                    // signal received, continue select
+                    wait.tv_sec = myTimeoutSec;
+                    wait.tv_usec = 0;
+                    continue;
+                }
+                else
+                    throw ConnectionException(SystemError, "Could not perform select() call: " + getErrorString(getLastError()), 500);
             }
-          }
-          else
-          {
-            buff += written;
-            len -= written;
-          }
+            if(ready == 0)
+                throw ConnectionException(SystemError, "Timeout while attempting to write (after " + toString(myTimeoutSec) + "seconds.", 500);
+
+            if(FD_ISSET(fd_handle, &wfd))
+            {
+                if ( (written = low_level_write(buff, len)) < 0)
+                {
+                    switch(getLastError())
+                    {
+                    case EAGAIN:
+                    case EINTR:
+                        errno = 0;
+                        continue;
+
+                    case EPIPE:
+                        close();
+                        throw ConnectionException(TransportError,
+                                                  "Attempt to write to a connection already closed by the peer", 500);
+                    /*break; */
+
+                    default:
+                        throw ConnectionException(SystemError,
+                                                  "Could not perform low_level_write() call: " + getErrorString(getLastError()), 500);
+
+                    }
+                }
+                else
+                {
+                    buff += written;
+                    len -= written;
+                }
+            }
         }
-      }
 
     }
 
 
     bool Connection::hasPendingInput() const
     {
-      return false;
+        return false;
     }
 
 
     size_t Connection::low_level_read(char *buff, long len)
     {
+        ULXR_TRACE("Connection::low_level_read");
         return ::read(fd_handle, buff, len);
+        ULXR_TRACE("/Connection::low_level_read");
     }
 
 
     size_t Connection::read(char *buff, long len)
     {
-      long myRead = 0;
+        long myRead = 0;
 
-      ULXR_TRACE("read 1");
+        ULXR_TRACE("Connection::read");
 
-      if (!buff || !isOpen())
-        throw RuntimeException(ApplicationError, "Precondition failed for read() call");
+        if (!buff || !isOpen())
+            throw RuntimeException(ApplicationError, "Precondition failed for read() call");
 
-      ULXR_TRACE("read 2 " << len);
+        if (len <= 0)
+            return 0;
 
-      if (len <= 0)
-        return 0;
+        fd_set rfd;
 
-      fd_set rfd;
+        FD_ZERO(&rfd);
+        FD_SET((unsigned) fd_handle, &rfd);
 
-      FD_ZERO(&rfd);
-      FD_SET((unsigned) fd_handle, &rfd);
-
-      if (hasPendingInput())
-      {
-        ULXR_TRACE("read 3 pending");
-        if( (myRead = low_level_read(buff, len)) < 0)
+        if (hasPendingInput())
         {
-          throw ConnectionException(SystemError, "Could not perform read() call on pending input: " + getErrorString(getLastError()), 500);
-        }
-        ULXR_TRACE("read pending read " + toString(myRead) + " and wanted " + toString(len));
-      }
-      else
-      {
-        ULXR_TRACE("read 3a");
-
-        const unsigned myTimeoutSec = getTimeout();
-        timeval wait;
-        wait.tv_sec = myTimeoutSec;
-        wait.tv_usec = 0;
-        int ready;
-        while((ready = ::select(fd_handle+1, &rfd, 0, 0, &wait)) < 0)
-        {
-          ULXR_TRACE("read ~select");
-          if (errno == EINTR || errno == EAGAIN)
-          {
-            // signal received, continue select
-             wait.tv_sec = myTimeoutSec;
-             wait.tv_usec = 0;
-             continue;
-          }
-
-          else
-          {
-              ULXR_TRACE("read ConnEx");
-              throw ConnectionException(SystemError, "Could not perform select() call: " + getErrorString(getLastError()), 500);
-           }
-        }
-
-        ULXR_TRACE("read 4");
-        if(ready == 0)
-          throw ConnectionException(SystemError,
-                                    "Timeout while attempting to read (after " + toString(myTimeoutSec) + " seconds).", 500);
-
-        ULXR_TRACE("read 5");
-
-        if(FD_ISSET(fd_handle, &rfd))
-        {
-          while ( (myRead = low_level_read(buff, len)) < 0)
-          {
-            ULXR_TRACE("read 6: " << getErrorString(getLastError()));
-            switch(getLastError())
+            ULXR_TRACE("Connection: has pending input");
+            if( (myRead = low_level_read(buff, len)) < 0)
             {
-              case EAGAIN:
-              case EINTR:
-                errno = 0;
-              continue;
-
-              default:
-                throw ConnectionException(SystemError,
-                                          "Could not perform read() call: "
-                                          + getErrorString(getLastError()), 500);
+                throw ConnectionException(SystemError, "Could not perform read() call on pending input: " + getErrorString(getLastError()), 500);
             }
-          }
+            ULXR_TRACE("read pending read " + toString(myRead) + " and wanted " + toString(len));
         }
-      }
+        else
+        {
+            ULXR_TRACE("Connection: no pending input");
+
+            const unsigned myTimeoutSec = getTimeout();
+            timeval wait;
+            wait.tv_sec = myTimeoutSec;
+            wait.tv_usec = 0;
+            int ready;
+            while((ready = ::select(fd_handle+1, &rfd, 0, 0, &wait)) < 0)
+            {
+                ULXR_TRACE("read ~select");
+                if (errno == EINTR || errno == EAGAIN)
+                {
+                    // signal received, continue select
+                    wait.tv_sec = myTimeoutSec;
+                    wait.tv_usec = 0;
+                    continue;
+                }
+
+                else
+                {
+                    throw ConnectionException(SystemError, "Could not perform select() call: " + getErrorString(getLastError()), 500);
+                }
+            }
+
+            if (ready == 0)
+            {
+                throw ConnectionException(SystemError,
+                                          "Timeout while attempting to read (after " + toString(myTimeoutSec) + " seconds).", 500);
+            }
+
+            if (FD_ISSET(fd_handle, &rfd))
+            {
+                while ( (myRead = low_level_read(buff, len)) < 0)
+                {
+                    ULXR_TRACE("Connection::read:: got " << getErrorString(getLastError()));
+                    switch(getLastError())
+                    {
+                    case EAGAIN:
+                    case EINTR:
+                        errno = 0;
+                        continue;
+
+                    default:
+                        throw ConnectionException(SystemError,
+                                                  "Could not perform read() call: "
+                                                  + getErrorString(getLastError()), 500);
+                    }
+                }
+            }
+        }
 
 
-      ULXR_TRACE ("read " << myRead);
-      ULXR_DWRITE_READ(buff, myRead);
+        ULXR_TRACE("Connection: reading " << myRead << " bytes");
+        ULXR_DWRITE_READ(buff, myRead);
 
-      // have Content-length field and got unexpected EOF?
-      // otherwise caller gets until EOF
-      if (myRead == 0 /*&& getBytesToRead() >= 0*/)
-      {
-        ULXR_TRACE ("read == 0");
-        close();
-        throw ConnectionException(TransportError,
-                                   "Attempt to read from a connection already closed by the peer", 500);
-      }
+        // have Content-length field and got unexpected EOF?
+        // otherwise caller gets until EOF
+        if (myRead == 0 /*&& getBytesToRead() >= 0*/)
+        {
+            close();
+            throw ConnectionException(TransportError,
+                                      "Attempt to read from a connection already closed by the peer", 500);
+        }
 
-      return myRead;
+        return myRead;
     }
 
     void Connection::close()
     {
-      ULXR_TRACE("close");
-      if (isOpen())
-      {
-        int ret;
-        ULXR_TRACE("close");
-        do
-          ret=::close(fd_handle);
-        while(ret < 0 && (errno == EINTR || errno == EAGAIN));
+        ULXR_TRACE("Connection::close");
+        if (isOpen())
+        {
+            int ret;
+            ULXR_TRACE("Connection::close (2)");
+            do
+            {
+                ret=::close(fd_handle);
+            }
+            while(ret < 0 && (errno == EINTR || errno == EAGAIN));
 
-        if(ret < 0)
-          throw ConnectionException(TransportError,
-                                    "Close failed: "+getErrorString(getLastError()), 500);
-      }
-      fd_handle = -1;
-      ULXR_TRACE("/close");
+            if (ret < 0)
+                throw ConnectionException(TransportError,
+                                          "Close failed: "+getErrorString(getLastError()), 500);
+        }
+        fd_handle = -1;
+        ULXR_TRACE("/Connection::close");
     }
 
 
@@ -324,71 +315,26 @@ namespace ulxr
 
     int Connection::getHandle() const
     {
-      return fd_handle;
+        return fd_handle;
     }
 
 
     void Connection::setHandle(int handle)
     {
-      close();
-      fd_handle = handle;
+        close();
+        fd_handle = handle;
     }
-
-
-    bool Connection::isConnecting() const
-    {
-      return isconnecting;
-    }
-
-
-    void Connection::setIsConnecting(bool connecting)
-    {
-      isconnecting = connecting;
-    }
-
-
-    void Connection::doConnect()
-    {
-        ULXR_TRACE("doConnect");
-        if(connector != 0)
-        {
-            ULXR_TRACE("doConnect call");
-            setIsConnecting(true);
-            try
-            {
-                connector->call();
-            }
-            catch(...)
-            {
-                setIsConnecting(false);
-                throw;
-            }
-            setIsConnecting(false);
-        }
-    }
-
-
-    ConnectorWrapperBase::~ConnectorWrapperBase()
-    {}
-
-
-    void Connection::setConnector(ConnectorWrapperBase *in_connector)
-    {
-      ULXR_TRACE("setConnector " << (void*) in_connector);
-      connector = in_connector;
-    }
-
 
     void Connection::setTimeout(unsigned to_sec)
     {
-      ULXR_TRACE("new timeout: " << to_sec);
-      current_to = to_sec;
+        ULXR_TRACE("Set read/write timeout to " << to_sec << " sec");
+        theRwTimeoutSec = to_sec;
     }
 
 
     unsigned Connection::getTimeout() const
     {
-      return current_to;
-}
+        return theRwTimeoutSec;
+    }
 
 }  // namespace ulxr

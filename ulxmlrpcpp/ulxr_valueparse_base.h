@@ -39,171 +39,171 @@
 namespace ulxr {
 
 
-/** Base class for  RPC parsing.
-  *
-  * IMPORTANT:
-  * The current "Value" is moved around via pointers and is not
-  * automatically destroyed. The object taking over the "Value" resp. the object
-  * storing the value somehow else must "delete" the "Value" it gets.
-  *
-  * @see ArrayState::takeValue
-  * @ingroup grp_ulxr_parser
-  */
-class  ValueParserBase
-{
- public:
+    /** Base class for  RPC parsing.
+      *
+      * IMPORTANT:
+      * The current "Value" is moved around via pointers and is not
+      * automatically destroyed. The object taking over the "Value" resp. the object
+      * storing the value somehow else must "delete" the "Value" it gets.
+      *
+      * @see ArrayState::takeValue
+      * @ingroup grp_ulxr_parser
+      */
+    class  ValueParserBase
+    {
+    public:
 
-  /** Destroy parser.
-   */
-   virtual ~ValueParserBase();
+        /** Destroy parser.
+         */
+        virtual ~ValueParserBase();
 
-  /** Gets the final Value after parsing.
-   * @return the Value.
-   */
-   Value getValue() const;
+        /** Gets the final Value after parsing.
+         * @return the Value.
+         */
+        Value getValue() const;
 
-   enum State
-   {
-     eValue  = XmlParserBase::eXmlParserLast,
-     eArray,   eData,
-     eStruct,  eMember, eName,
-     eBoolean, eInt,    eI4,   eDouble,
-     eString,  eBase64, eDate,
-     eValueParserLast
-   };
+        enum State
+        {
+            eValue  = XmlParserBase::eXmlParserLast,
+            eArray,   eData,
+            eStruct,  eMember, eName,
+            eBoolean, eInt,    eI4,   eDouble,
+            eString,  eBase64, eDate,
+            eValueParserLast
+        };
 
-/** Helper class to represent the data of the current parsing step.
-  */
-  class  ValueState : public XmlParserBase::ParserState
-  {
-   public:
+        /** Helper class to represent the data of the current parsing step.
+          */
+        class  ValueState : public XmlParserBase::ParserState
+        {
+        public:
 
-   /** Constructs an ValueState.
-     * @param  st  the actual state
-     */
-     ValueState (unsigned st);
+            /** Constructs an ValueState.
+              * @param  st  the actual state
+              */
+            ValueState (unsigned st);
 
-   /** Transfers a Value into the ValueState.
-     * @param  val   the value
-     * @param  candel: @li true:  value is unique here, delete at end
-     *                 @li false: value is shared here, delete it somewhere else
-     */
-     virtual void takeValue(Value *val, bool candel = true);
+            /** Transfers a Value into the ValueState.
+              * @param  val   the value
+              * @param  candel: @li true:  value is unique here, delete at end
+              *                 @li false: value is shared here, delete it somewhere else
+              */
+            virtual void takeValue(Value *val, bool candel = true);
 
-     virtual bool canDelete() const;
+            virtual bool canDelete() const;
 
-   /** Transfers a member name into the ValueState.
-     * Used only for Structs.
-     * @param  name   the member name
-     */
-     virtual void takeName(const std::string &name);
+            /** Transfers a member name into the ValueState.
+              * Used only for Structs.
+              * @param  name   the member name
+              */
+            virtual void takeName(const std::string &name);
 
-   /** Gets the name of the state.
-     * Useful only for debugging.
-     * @return the name of actual state
-     */
-     virtual std::string getStateName() const;
+            /** Gets the name of the state.
+              * Useful only for debugging.
+              * @return the name of actual state
+              */
+            virtual std::string getStateName() const;
 
-   /** Gets the name of the member.
-     * Used only with Structs
-     * @return the member name
-     */
-     std::string getName() const;
+            /** Gets the name of the member.
+              * Used only with Structs
+              * @return the member name
+              */
+            std::string getName() const;
 
-   /** Sets the name of the member.
-     * Used only with Structs
-     * @param  name   the member name
-     */
-     void setName(const std::string &name);
+            /** Sets the name of the member.
+              * Used only with Structs
+              * @param  name   the member name
+              */
+            void setName(const std::string &name);
 
-   /** Gets the Value of this state.
-     * @return the Value.
-     */
-     Value* getValue() const;
+            /** Gets the Value of this state.
+              * @return the Value.
+              */
+            Value* getValue() const;
 
-   protected:
+        protected:
 
-     Value     *value;
-     bool       candel;
+            Value     *value;
+            bool       candel;
 
-   private:
+        private:
 
-     std::string  name;
+            std::string  name;
 
-     ValueState(const ValueState&); // forbid this
-     ValueState& operator= (const ValueState&);
-  };
+            ValueState(const ValueState&); // forbid this
+            ValueState& operator= (const ValueState&);
+        };
 
- protected:
+    protected:
 
-/** Helper class to represent the data of the current parsing step
-  * when the xml element is a Struct.
-  */
-  class  MemberState : public ValueState
-  {
-   public:
+        /** Helper class to represent the data of the current parsing step
+          * when the xml element is a Struct.
+          */
+        class  MemberState : public ValueState
+        {
+        public:
 
-   /** Constructs a MemberState.
-     * @param  st   the actual state
-     * @param  val  pointer to the resulting value
-     */
-     MemberState(unsigned st, Value *val);
+            /** Constructs a MemberState.
+              * @param  st   the actual state
+              * @param  val  pointer to the resulting value
+              */
+            MemberState(unsigned st, Value *val);
 
-   /** Transfers a Value into the ValueState.
-     * @param  val   the value
-     * @param  candel: @li true:  value is unique here, delete at end
-     *                 @li false: value is shared here, delete it somewhere else
-     */
-     virtual void takeValue(Value *val, bool candel = true);
+            /** Transfers a Value into the ValueState.
+              * @param  val   the value
+              * @param  candel: @li true:  value is unique here, delete at end
+              *                 @li false: value is shared here, delete it somewhere else
+              */
+            virtual void takeValue(Value *val, bool candel = true);
 
-   /** Transfers a member name into the MemberState.
-     * @param  name   the member name
-     */
-     virtual void takeName(const std::string &name);
+            /** Transfers a member name into the MemberState.
+              * @param  name   the member name
+              */
+            virtual void takeName(const std::string &name);
 
-   protected:
+        protected:
 
-     Value  *mem_val;
+            Value  *mem_val;
 
-   private:
-     MemberState(const MemberState&); // forbid this
-     MemberState& operator= (const MemberState&);
-  };
+        private:
+            MemberState(const MemberState&); // forbid this
+            MemberState& operator= (const MemberState&);
+        };
 
 
-/** Helper class to represent the data of the current parsing step
-  * when the xml element is an Array.
-  */
-  class  ArrayState : public ValueState
-  {
-   public:
+        /** Helper class to represent the data of the current parsing step
+          * when the xml element is an Array.
+          */
+        class  ArrayState : public ValueState
+        {
+        public:
 
-   /** Constructs an ArrayState.
-     * @param  st   the actual state
-     */
-     ArrayState(unsigned st);
+            /** Constructs an ArrayState.
+              * @param  st   the actual state
+              */
+            ArrayState(unsigned st);
 
-   /** Transfers a Value into the ValueState.
-     * @param  val   the value
-     * @param  candel: @li true:  value is unique here, delete at end
-     *                 @li false: value is shared here, delete it somewhere else
-     */
-     virtual void takeValue(Value *val, bool candel = true);
+            /** Transfers a Value into the ValueState.
+              * @param  val   the value
+              * @param  candel: @li true:  value is unique here, delete at end
+              *                 @li false: value is shared here, delete it somewhere else
+              */
+            virtual void takeValue(Value *val, bool candel = true);
 
-   private:
-     ArrayState(const ArrayState&); // forbid this
-     ArrayState& operator= (const ArrayState&);
-  };
+        private:
+            ArrayState(const ArrayState&); // forbid this
+            ArrayState& operator= (const ArrayState&);
+        };
 
-   friend class ValueState;
+        friend class ValueState;
 
- protected:
+    protected:
 
- /** Gets a pointer to the topmost ValueState.
-   * @return pointer to ValueState
-   */
-   virtual ValueState *getTopValueState() const = 0;
-};
+        /** Gets a pointer to the topmost ValueState.
+          * @return pointer to ValueState
+          */
+        virtual ValueState *getTopValueState() const = 0;
+    };
 
 
 }  // namespace ulxr

@@ -36,122 +36,122 @@
 namespace ulxr {
 
 
- ExpatWrapper::ExpatWrapper(bool createParser)
-  : XmlParserBase()
-{
-  if (createParser)
-  {
-    expatParser = ::XML_ParserCreate(0);
-    setHandler();
-  }
-}
+    ExpatWrapper::ExpatWrapper(bool createParser)
+        : XmlParserBase()
+    {
+        if (createParser)
+        {
+            expatParser = ::XML_ParserCreate(0);
+            setHandler();
+        }
+    }
 
 
- ExpatWrapper::~ExpatWrapper()
-{
-  if (expatParser)  // allows subclasses to avoid finishing parsing
-    ::XML_ParserFree(expatParser);
-}
+    ExpatWrapper::~ExpatWrapper()
+    {
+        if (expatParser)  // allows subclasses to avoid finishing parsing
+            ::XML_ParserFree(expatParser);
+    }
 
 
-void ExpatWrapper::setHandler()
-{
-  ::XML_SetUserData(expatParser, this);
-  ::XML_SetElementHandler(expatParser, startElementCallback, endElementCallback);
-  ::XML_SetCharacterDataHandler(expatParser, charDataCallback);
-}
+    void ExpatWrapper::setHandler()
+    {
+        ::XML_SetUserData(expatParser, this);
+        ::XML_SetElementHandler(expatParser, startElementCallback, endElementCallback);
+        ::XML_SetCharacterDataHandler(expatParser, charDataCallback);
+    }
 
 
-void ExpatWrapper::resetParser()
-{
-  ::XML_ParserReset(expatParser, 0);
-  setHandler();
-}
+    void ExpatWrapper::resetParser()
+    {
+        ::XML_ParserReset(expatParser, 0);
+        setHandler();
+    }
 
 
-void ExpatWrapper::startElement(const XML_Char*, const XML_Char**)
-{
-}
+    void ExpatWrapper::startElement(const XML_Char*, const XML_Char**)
+    {
+    }
 
 
-void ExpatWrapper::endElement(const XML_Char*)
-{
-}
+    void ExpatWrapper::endElement(const XML_Char*)
+    {
+    }
 
 
-void ExpatWrapper::charData(const XML_Char*, int )
-{
-}
+    void ExpatWrapper::charData(const XML_Char*, int )
+    {
+    }
 
 
-int ExpatWrapper::mapToFaultCode(int xpatcode) const
-{
-   int fc = NotWellformedError;
-   // try to map error codes
-   switch (xpatcode)
-   {
-     case XML_ERROR_UNKNOWN_ENCODING:
-       fc = UnsupportedEncodingError;
-     break;
+    int ExpatWrapper::mapToFaultCode(int xpatcode) const
+    {
+        int fc = NotWellformedError;
+        // try to map error codes
+        switch (xpatcode)
+        {
+        case XML_ERROR_UNKNOWN_ENCODING:
+            fc = UnsupportedEncodingError;
+            break;
 
-     case XML_ERROR_BAD_CHAR_REF:
-     case XML_ERROR_PARTIAL_CHAR:
-     case XML_ERROR_INCORRECT_ENCODING: // fallthrough
-       fc = InvalidCharacterError;
-     break;
+        case XML_ERROR_BAD_CHAR_REF:
+        case XML_ERROR_PARTIAL_CHAR:
+        case XML_ERROR_INCORRECT_ENCODING: // fallthrough
+            fc = InvalidCharacterError;
+            break;
 
-     default:
-       fc = NotWellformedError;
-   }
-   return fc;
-}
-
-
-void
-  ExpatWrapper::startElementCallback(void *userData,
-                                     const XML_Char* name,
-                                     const XML_Char** atts)
-{
-  ((ExpatWrapper*)userData)->startElement(name, atts);
-}
+        default:
+            fc = NotWellformedError;
+        }
+        return fc;
+    }
 
 
-void
-  ExpatWrapper::endElementCallback(void *userData, const XML_Char* name)
-{
-   ((ExpatWrapper*)userData)->endElement(name);
-}
+    void
+    ExpatWrapper::startElementCallback(void *userData,
+                                       const XML_Char* name,
+                                       const XML_Char** atts)
+    {
+        ((ExpatWrapper*)userData)->startElement(name, atts);
+    }
 
 
-void
-  ExpatWrapper::charDataCallback(void *userData, const XML_Char* s, int len)
-{
-   ((ExpatWrapper*)userData)->charData(s, len);
-}
+    void
+    ExpatWrapper::endElementCallback(void *userData, const XML_Char* name)
+    {
+        ((ExpatWrapper*)userData)->endElement(name);
+    }
 
 
-int  ExpatWrapper::parse(const char* buffer, int len, int isFinal)
-{
-  return ::XML_Parse(expatParser, buffer, len, isFinal);
-}
+    void
+    ExpatWrapper::charDataCallback(void *userData, const XML_Char* s, int len)
+    {
+        ((ExpatWrapper*)userData)->charData(s, len);
+    }
 
 
-unsigned  ExpatWrapper::getErrorCode() const
-{
-  return ::XML_GetErrorCode(expatParser);
-}
+    int  ExpatWrapper::parse(const char* buffer, int len, int isFinal)
+    {
+        return ::XML_Parse(expatParser, buffer, len, isFinal);
+    }
 
 
-std::string  ExpatWrapper::getErrorString(unsigned code) const
-{
-  return XML_ErrorString((XML_Error) code);
-}
+    unsigned  ExpatWrapper::getErrorCode() const
+    {
+        return ::XML_GetErrorCode(expatParser);
+    }
 
 
-int  ExpatWrapper::getCurrentLineNumber() const
-{
-  return ::XML_GetCurrentLineNumber(expatParser);
-}
+    std::string  ExpatWrapper::getErrorString(unsigned code) const
+    {
+        return XML_ErrorString((XML_Error) code);
+    }
+
+
+    int  ExpatWrapper::getCurrentLineNumber() const
+    {
+        return ::XML_GetCurrentLineNumber(expatParser);
+    }
 
 
 }  // namespace ulxr

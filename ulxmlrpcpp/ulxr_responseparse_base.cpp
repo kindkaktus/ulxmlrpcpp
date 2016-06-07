@@ -35,30 +35,30 @@
 namespace ulxr {
 
 
- MethodResponseParserBase::~MethodResponseParserBase()
-{
-}
+    MethodResponseParserBase::~MethodResponseParserBase()
+    {
+    }
 
 
-MethodResponse MethodResponseParserBase::getMethodResponse()
-{
-  if (method_value.isStruct() )
-  {
-     Struct st = method_value;
-     if (   st.size() == 2
-         && st.hasMember("faultCode")
-         && st.hasMember("faultString") )
-     {
-       Integer iv = st.getMember("faultCode");
-       RpcString sv = st.getMember("faultString");
-       return MethodResponse(iv.getInteger(), sv.getString());
-     }
-    else
-      return MethodResponse(method_value);
-  }
-  else
-    return MethodResponse(method_value);
-}
+    MethodResponse MethodResponseParserBase::getMethodResponse()
+    {
+        if (method_value.isStruct() )
+        {
+            Struct st = method_value;
+            if (   st.size() == 2
+                    && st.hasMember("faultCode")
+                    && st.hasMember("faultString") )
+            {
+                Integer iv = st.getMember("faultCode");
+                RpcString sv = st.getMember("faultString");
+                return MethodResponse(iv.getInteger(), sv.getString());
+            }
+            else
+                return MethodResponse(method_value);
+        }
+        else
+            return MethodResponse(method_value);
+    }
 
 
 }  // namespace ulxr

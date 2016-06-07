@@ -1,7 +1,12 @@
                             ulxmlrpcpp history
                             ------------------
 
-2015-12-17   1.7.5.p1 by Andrei Korostelev
+2016-06-07   1.7.5.p2, Andrei Korostelev
+    - FIXED SSL handshake respects timeout passed for read/write socket operations
+    - CHANGED Removed unused code
+    - CHANGED Formatted source code
+
+2015-12-17   1.7.5.p1, Andrei Korostelev
   - ADDED Multi-process XMLRPC server (based on funtik::MultiProcessRpcServer from contrib)
   - ADDED IPv6 support
   - CHANGED (cleanup) Dropped wbxml_mode functionality, MultiThreadRpcServer, HttpServer, HttpClient, Log4j, chunked transfer support, string macros and more

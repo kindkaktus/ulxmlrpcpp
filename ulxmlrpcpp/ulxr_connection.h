@@ -34,203 +34,130 @@
 
 namespace ulxr {
 
-/** @brief A connection object to transport XML-RPC calls.
-  * @defgroup grp_ulxr_connection A connection for an XML-RPC call
-  */
-
-/** Internal helper class, not intended for public use.
- * @internal
- */
-class  ConnectorWrapperBase
-{
-  public:
-
-    virtual ~ConnectorWrapperBase();
-
-    virtual void call() = 0;
-};
+    /** @brief A connection object to transport XML-RPC calls.
+      * @defgroup grp_ulxr_connection A connection for an XML-RPC call
+      */
 
 
-/** Internal helper class template, not intended for public use.
- * @internal
- */
-template <class T>
-class  ConnectorWrapper : public ConnectorWrapperBase
-{
-  public:
+    /** Base class for connection between XML RPC client and server.
+      * @ingroup grp_ulxr_connection
+      */
+    class  Connection
+    {
+    public:
 
-   typedef void (T::*PMF)();
+        /** Constructs a connection.
+          * The connection is not yet open after construction.
+          */
+        Connection();
 
-   virtual void call ()
-   {
-      (obj->*adr) ();
-   }
+        /** Destroys the connection.
+          * The connection is closed now at the latest.
+          */
+        virtual ~Connection();
 
-   ConnectorWrapper(T *o, PMF a)
-     : obj(o), adr(a)
-   {}
+        /** Closes the connection.
+          */
+        virtual void close();
 
-  private:
+        /** Stops serving for server-side connection
+        */
+        virtual void stopServing() = 0;
 
-   T    *obj;
-   PMF   adr ;
+        /** Writes data to the connection.
+          * @param  buff pointer to data
+          * @param  len  valid buffer length
+          */
+        virtual void write(char const *buff, long len);
 
- private:
-    // forbid them all due to internal pointers
-    const ConnectorWrapper& operator= (const ConnectorWrapper&);
-    ConnectorWrapper (const ConnectorWrapper&);
-};
+        /** Reads data from the connection.
+          * @param  buff pointer to data buffer
+          * @param  len  maimum number of bytes to read into buffer
+          * @return number of actually read bytes
+          */
+        virtual size_t read(char *buff, long len);
 
+        /** Opens the connection in rpc client mode.
+          */
+        virtual void open() = 0;
 
-/** Base class for connection between XML RPC client and server.
-  * @ingroup grp_ulxr_connection
-  */
-class  Connection
-{
- public:
+        /** Opens the connection in rpc server mode, thus waiting for
+          * connections from clients.
+          * @param timeout the timeout value [sec] (0 - no timeout)
+          * @returns <code>true</code> when connection has been accepted
+          */
+        virtual bool accept(int timeout = 0) = 0;
 
- /** Constructs a connection.
-   * The connection is not yet open after construction.
-   */
-   Connection();
+        /** Tests if the connection is open.
+          * @return true if connection is already open.
+          */
+        virtual bool isOpen() const;
 
- /** Destroys the connection.
-   * The connection is closed now at the latest.
-   */
-   virtual ~Connection();
+        /** Sets timeout for read/write operations
+          * @param  to_sec  time in seconds
+          */
+        void setTimeout(unsigned to_sec);
 
- /** Closes the connection.
-   */
-   virtual void close();
+        /** Gets timeout for read/write operations
+          * @return time in seconds
+          */
+        unsigned getTimeout() const;
 
-    /** Stops serving for server-side connection
-   */
-   virtual void stopServing() = 0;
+        /** Portable function to return the current error number.
+         * @return error number (errno under Unices)
+         */
+        virtual int getLastError();
 
- /** Writes data to the connection.
-   * @param  buff pointer to data
-   * @param  len  valid buffer length
-   */
-   virtual void write(char const *buff, long len);
+        /** Portable function to return the error description for a given error number
+         * @param  err_number    system dependent error code
+         * @return error string
+         */
+        virtual std::string getErrorString(int err_number);
 
- /** Reads data from the connection.
-   * @param  buff pointer to data buffer
-   * @param  len  maimum number of bytes to read into buffer
-   * @return number of actually read bytes
-   */
-   virtual size_t read(char *buff, long len);
+        /** Returns the file handle of the connection.
+          * @return  the file handle
+          */
+        int getHandle() const;
 
- /** Opens the connection in rpc client mode.
-   */
-   virtual void open() = 0;
+        virtual int getServerIpv4Handle() = 0;
+        virtual int getServerIpv6Handle() = 0;
 
- /** Opens the connection in rpc server mode, thus waiting for
-   * connections from clients.
-   * @param timeout the timeout value [sec] (0 - no timeout)
-   * @returns <code>true</code> when connection has been accepted
-   */
-   virtual bool accept(int timeout = 0) = 0;
+    protected:
 
- /** Tests if the connection is open.
-   * @return true if connection is already open.
-   */
-   virtual bool isOpen() const;
+        /** Sets the file handle of the connection.
+          * @param handle  the file handle
+          */
+        void setHandle(int handle);
 
- /** Sets the maximum time it is waited to complete an action like open or read.
-   * @param  to_sec  time in seconds
-   */
-   void setTimeout(unsigned to_sec);
+        /** Actually writes data to the connection.
+          * @param  buff pointer to data
+          * @param  len  valid buffer length
+          * @return  result from api write function
+          */
+        virtual size_t low_level_write(char const *buff, long len);
 
- /** Gets the maximum time it is waited to complete an action like open or read.
-   * @return time in seconds
-   */
-   unsigned getTimeout() const;
+        /** Reads data from the connection.
+          * @param  buff pointer to data buffer
+          * @param  len  maimum number of bytes to read into buffer
+          * @return  result from api read function
+          */
+        virtual size_t low_level_read(char *buff, long len);
 
-  /** Portable function to return the current error number.
-   * @return error number (errno under Unices)
-   */
-   virtual int getLastError();
+        /** Checks if there is input data which can intermediately be read.
+          * @return true: data available
+          */
+        virtual bool hasPendingInput() const;
 
-  /** Portable function to return the error description for a given error number
-   * @param  err_number    system dependent error code
-   * @return error string
-   */
-   virtual std::string getErrorString(int err_number);
+    private:
 
- /** Returns the file handle of the connection.
-   * @return  the file handle
-   */
-   int getHandle() const;
+        /** Initializes internal variables.
+          */
+        void init();
 
- /** Connect to a proxy or firewall after creating the socket.
-   */
-   void doConnect();
-
- /** Sets the callback to the proxy connector.
-   * @param  connector   connector callback
-   */
-   void setConnector(ConnectorWrapperBase *connector);
-
-   virtual int getServerIpv4Handle() = 0;
-   virtual int getServerIpv6Handle() = 0;
-
- protected:
-
- /** Sets the file handle of the connection.
-   * @param handle  the file handle
-   */
-   void setHandle(int handle);
-
- /** Checks if the http CONNECT is in progress.
-   * @return true: CONNECT is running
-   */
-   bool isConnecting() const;
-
- /** Reflects the state when the http CONNECT is in progress.
-   * In this case encryption must temporarily be turned off to authenticate with a firewall.
-   * @param connecting true: CONNECT is running
-   */
-   void setIsConnecting(bool connecting);
-
- /** Actually writes data to the connection.
-   * @param  buff pointer to data
-   * @param  len  valid buffer length
-   * @return  result from api write function
-   */
-   virtual size_t low_level_write(char const *buff, long len);
-
- /** Reads data from the connection.
-   * @param  buff pointer to data buffer
-   * @param  len  maimum number of bytes to read into buffer
-   * @return  result from api read function
-   */
-   virtual size_t low_level_read(char *buff, long len);
-
- /** Checks if there is input dta which can innediately be read.
-   * @return true: data available
-   */
-   virtual bool hasPendingInput() const;
-
- private:
-
- /** Initializes internal variables.
-   */
-   void init();
-
- private:
-
-   bool                   isconnecting;
-   ConnectorWrapperBase  *connector;
-   int                    fd_handle;
-
-   unsigned               current_to;
-
- private:
-
-    // forbid them all due to internal pointers
-//    const ConnectorWrapper& operator= (const ConnectorWrapper&);
-//    ConnectorWrapper (const ConnectorWrapper&);
-};
+    private:
+        int                    fd_handle;
+        unsigned               theRwTimeoutSec;
+    };
 
 
 }  // namespace ulxr

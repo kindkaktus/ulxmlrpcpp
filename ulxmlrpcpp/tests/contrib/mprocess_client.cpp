@@ -52,100 +52,100 @@
 
 int main(int argc, char **argv)
 {
-	try
-	{
-    	std::string host = "localhost";
-		if (argc > 1)
-			host = argv[1];
+    try
+    {
+        std::string host = "localhost";
+        if (argc > 1)
+            host = argv[1];
 
-		unsigned port = 32000;
-		if (argc > 2)
-			port = atoi(argv[2]);
+        unsigned port = 32000;
+        if (argc > 2)
+            port = atoi(argv[2]);
 
-		unsigned int uiNumQuery=argc>3?atoi(argv[3]):NUM_QUERY;
-		unsigned int uiNumCycles=argc>4?atoi(argv[4]):NUM_CYCLES;
+        unsigned int uiNumQuery=argc>3?atoi(argv[3]):NUM_QUERY;
+        unsigned int uiNumCycles=argc>4?atoi(argv[4]):NUM_CYCLES;
 
-		std::cout<<"Test Cycles: "<<uiNumCycles<<" Number query in cycle: "<<uiNumQuery<<std::endl;
+        std::cout<<"Test Cycles: "<<uiNumCycles<<" Number query in cycle: "<<uiNumQuery<<std::endl;
 
-	    std::auto_ptr<ulxr::TcpIpConnection> conn(new ulxr::TcpIpConnection (false, host, port));
+        std::auto_ptr<ulxr::TcpIpConnection> conn(new ulxr::TcpIpConnection (false, host, port));
 
-    	ulxr::HttpProtocol prot(conn.get());
-	    ulxr::Requester client(&prot);
+        ulxr::HttpProtocol prot(conn.get());
+        ulxr::Requester client(&prot);
 
-    	ulxr::MethodCall list_methods ("system.listMethods");
-	    std::cout << "call list_methods: \n";
-    	ulxr::MethodResponse resp = client.call(list_methods, "/RPC2");
-	    std::cout << "call result: \n";
-    	std::cout << resp.getXml(0) << std::endl;
+        ulxr::MethodCall list_methods ("system.listMethods");
+        std::cout << "call list_methods: \n";
+        ulxr::MethodResponse resp = client.call(list_methods, "/RPC2");
+        std::cout << "call result: \n";
+        std::cout << resp.getXml(0) << std::endl;
 
 //--
-	    ulxr::MethodCall get_signature ("system.methodSignature");
-    	std::cout << "call system.methodSignature: \n";
-	    get_signature.addParam(ulxr::RpcString("check_sig"));
-    	ulxr::MethodResponse resp_get_sig = client.call(get_signature, "/RPC2");
-	    std::cout << "call result: \n";
-    	std::cout << resp_get_sig.getXml(0) << std::endl;
+        ulxr::MethodCall get_signature ("system.methodSignature");
+        std::cout << "call system.methodSignature: \n";
+        get_signature.addParam(ulxr::RpcString("check_sig"));
+        ulxr::MethodResponse resp_get_sig = client.call(get_signature, "/RPC2");
+        std::cout << "call result: \n";
+        std::cout << resp_get_sig.getXml(0) << std::endl;
 
 //    exit(0);
 //--
-	    ulxr::MethodCall check ("check");
-		std::string ss = "Test string";
-		ulxr::RpcString c(ss);
-		check.addParam(c);
+        ulxr::MethodCall check ("check");
+        std::string ss = "Test string";
+        ulxr::RpcString c(ss);
+        check.addParam(c);
 //    check.addParam(ulxr::RpcString("Test string."));
-		for(unsigned int j=0;j<uiNumCycles;j++)
-		{
-    		for(unsigned int i=0;i<uiNumQuery;i++)
-    		{
-				if(!fork())
-				{
-					try{
-		    			ulxr::MethodResponse test_resp = client.call(check, "/RPC2");
-			    		std::cout << "Number request: "<<i<<" All "<<(j*uiNumQuery)+i<<std::endl;
-				    	ulxr::RpcString ret = test_resp.getResult();
-			    		std::cout <<ret.getString()<<std::endl;
-			    		exit(0);
-					}catch(std::exception &ex)
-					{
-						std::cout<<"Children Error: "<<ex.what()<<std::endl;
-						exit(0);
-					}
-				}
-	    	}
+        for(unsigned int j=0; j<uiNumCycles; j++)
+        {
+            for(unsigned int i=0; i<uiNumQuery; i++)
+            {
+                if(!fork())
+                {
+                    try {
+                        ulxr::MethodResponse test_resp = client.call(check, "/RPC2");
+                        std::cout << "Number request: "<<i<<" All "<<(j*uiNumQuery)+i<<std::endl;
+                        ulxr::RpcString ret = test_resp.getResult();
+                        std::cout <<ret.getString()<<std::endl;
+                        exit(0);
+                    } catch(std::exception &ex)
+                    {
+                        std::cout<<"Children Error: "<<ex.what()<<std::endl;
+                        exit(0);
+                    }
+                }
+            }
 
-    		int status;
-	    	pid_t exit_pid;
-	    	while((exit_pid=wait(&status))>0)
-    		{
-				std::cout<<"End process: "<<exit_pid<<std::endl;
-		    }
-		}
+            int status;
+            pid_t exit_pid;
+            while((exit_pid=wait(&status))>0)
+            {
+                std::cout<<"End process: "<<exit_pid<<std::endl;
+            }
+        }
 
-	    ulxr::MethodCall finish_server ("finish_server");
-    	resp = client.call(finish_server, "/RPC2");
-	    std::cout << "call result: \n";
-    	std::cout << resp.getXml(0) << std::endl;
+        ulxr::MethodCall finish_server ("finish_server");
+        resp = client.call(finish_server, "/RPC2");
+        std::cout << "call result: \n";
+        std::cout << resp.getXml(0) << std::endl;
 
-	    int status;
-    	pid_t exit_pid;
-	    while((exit_pid=wait(&status))>0)
-    	{
-			std::cout<<"End process: "<<exit_pid<<std::endl;
-	    }
-	}//try
+        int status;
+        pid_t exit_pid;
+        while((exit_pid=wait(&status))>0)
+        {
+            std::cout<<"End process: "<<exit_pid<<std::endl;
+        }
+    }//try
 
-  catch(ulxr::Exception &ex)
-  {
-     std::cout << "Error occured: " << ex.why() << std::endl;
-     return 1;
-  }
+    catch(ulxr::Exception &ex)
+    {
+        std::cout << "Error occured: " << ex.why() << std::endl;
+        return 1;
+    }
 
-  catch(...)
-  {
-     std::cout << "unknown Error occured.\n";
-     return 1;
-  }
+    catch(...)
+    {
+        std::cout << "unknown Error occured.\n";
+        return 1;
+    }
 
-  std::cout << "Well done, Ready.\n";
-  return 0;
+    std::cout << "Well done, Ready.\n";
+    return 0;
 }

@@ -16,39 +16,39 @@
 
 static bool haveOption(int argc, char **argv, const char *name)
 {
-  for (int i = 0; i < argc; ++i)
-  {
-    if (strcmp(argv[i], name) == 0)
-      return true;
-  }
-  return false;
+    for (int i = 0; i < argc; ++i)
+    {
+        if (strcmp(argv[i], name) == 0)
+            return true;
+    }
+    return false;
 }
 
 class TestWorker
 {
-    public:
+public:
 
-        TestWorker () : running(true)
+    TestWorker () : running(true)
     {}
 
 
-        ulxr::MethodResponse shutdown (const ulxr::MethodCall &/*calldata*/)
-        {
-            std::cout << "got signal to shut down\n";
-            ulxr::MethodResponse resp;
-            resp.setResult(ulxr::Boolean(running));
-            running = false;
-            return resp;
-        }
+    ulxr::MethodResponse shutdown (const ulxr::MethodCall &/*calldata*/)
+    {
+        std::cout << "got signal to shut down\n";
+        ulxr::MethodResponse resp;
+        resp.setResult(ulxr::Boolean(running));
+        running = false;
+        return resp;
+    }
 
 
-        ulxr::MethodResponse getCertificate (const ulxr::MethodCall &calldata)
-        {
-            ulxr::RpcString myServiceName = calldata.getParam(0);
-            //std::cout << "Service Name: " << myServiceName.getString() << "\n";
-            ulxr::MethodResponse resp;
+    ulxr::MethodResponse getCertificate (const ulxr::MethodCall &calldata)
+    {
+        ulxr::RpcString myServiceName = calldata.getParam(0);
+        //std::cout << "Service Name: " << myServiceName.getString() << "\n";
+        ulxr::MethodResponse resp;
 
-            const char certTempl[] = "Certificate:\n\
+        const char certTempl[] = "Certificate:\n\
                                      Data:\n\
                                      Version: 3 (0x2)\n\
                                      Serial Number:\n\
@@ -95,42 +95,42 @@ class TestWorker
                                                          e3:97:68:92:37:7c:43:d4:95:76:9e:e3:f7:06:29:a2:f3:6b:\n\
                                                          58:d0\
                                                          ";
-            char cert[1024*8 + 1] ={};
-            snprintf(cert, sizeof(cert)-1, certTempl, myServiceName.getString().c_str());
-            resp.setResult(ulxr::Base64(cert));
-            return resp;
-        }
+        char cert[1024*8 + 1] = {};
+        snprintf(cert, sizeof(cert)-1, certTempl, myServiceName.getString().c_str());
+        resp.setResult(ulxr::Base64(cert));
+        return resp;
+    }
 
-        // Return a sorted merged array from two given arrays
-        ulxr::MethodResponse mergeArrays (const ulxr::MethodCall &calldata)
+    // Return a sorted merged array from two given arrays
+    ulxr::MethodResponse mergeArrays (const ulxr::MethodCall &calldata)
+    {
+        ulxr::Array myArr1 = calldata.getParam(0);
+        ulxr::Array myArr2 = calldata.getParam(1);
+
+        std::list<int> l1, l2;
+        for (unsigned int i=0; i < myArr1.size(); ++i)
         {
-            ulxr::Array myArr1 = calldata.getParam(0);
-            ulxr::Array myArr2 = calldata.getParam(1);
-
-            std::list<int> l1, l2;
-            for (unsigned int i=0; i < myArr1.size(); ++i)
-            {
-                ulxr::Integer val = myArr1.getItem(i);
-                l1.push_back(val.getInteger());
-            }
-            for (unsigned int i=0; i < myArr2.size(); ++i)
-            {
-                ulxr::Integer val = myArr2.getItem(i);
-                l2.push_back(val.getInteger());
-            }
-            l1.sort();
-            l2.sort();
-            l1.merge(l2);
-
-            ulxr::Array retVal;
-            for (std::list<int>::const_iterator it = l1.begin(), end=l1.end(); it!=end; ++it)
-                retVal.addItem(ulxr::Integer(*it));
-            ulxr::MethodResponse resp;
-            resp.setResult(retVal);
-            return resp;
+            ulxr::Integer val = myArr1.getItem(i);
+            l1.push_back(val.getInteger());
         }
+        for (unsigned int i=0; i < myArr2.size(); ++i)
+        {
+            ulxr::Integer val = myArr2.getItem(i);
+            l2.push_back(val.getInteger());
+        }
+        l1.sort();
+        l2.sort();
+        l1.merge(l2);
 
-        bool running;
+        ulxr::Array retVal;
+        for (std::list<int>::const_iterator it = l1.begin(), end=l1.end(); it!=end; ++it)
+            retVal.addItem(ulxr::Integer(*it));
+        ulxr::MethodResponse resp;
+        resp.setResult(retVal);
+        return resp;
+    }
+
+    bool running;
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -157,20 +157,20 @@ int main(int argc, char **argv)
         sec = "secured";
 
     std::cout << "Serving " << sec << " rpc requests at "
-        << ipv4 << ":" << port << std::endl
-        << ipv6 << ":" << port << std::endl;
+              << ipv4 << ":" << port << std::endl
+              << ipv6 << ":" << port << std::endl;
 
     ulxr::IP myIP;
     myIP.ipv4 = ipv4;
     myIP.ipv6 = ipv6;
-    
+
     std::auto_ptr<ulxr::HttpProtocol> prot;
     try
     {
-    
+
         std::auto_ptr<ulxr::TcpIpConnection> conn;
         if (secure)
-        { 
+        {
             ulxr::SSLConnection *ssl = new ulxr::SSLConnection (myIP, port);
             ssl->setCryptographyData("password", "foo-cert.pem", "foo-cert.pem");
             conn.reset(ssl);
@@ -179,7 +179,7 @@ int main(int argc, char **argv)
         {
             conn.reset(new ulxr::TcpIpConnection (myIP, port));
         }
-    
+
         conn->setTcpNoDelay(true);
         prot.reset(new ulxr::HttpProtocol(conn.get()));
         ulxr::Dispatcher server(prot.get());
@@ -189,22 +189,22 @@ int main(int argc, char **argv)
 
 
         server.addMethod(ulxr::make_method(worker, &TestWorker::getCertificate),
-                ulxr::Signature(ulxr::Base64()),
-                "getCertificate",
-                ulxr::Signature(ulxr::RpcString()),
-                "Get Certificate for a given service");
+                         ulxr::Signature(ulxr::Base64()),
+                         "getCertificate",
+                         ulxr::Signature(ulxr::RpcString()),
+                         "Get Certificate for a given service");
 
         server.addMethod(ulxr::make_method(worker, &TestWorker::mergeArrays),
-                ulxr::Signature(ulxr::Array()),
-                "mergeArrays",
-                ulxr::Signature() << ulxr::Array() << ulxr::Array(),
-                "Return a sorted merged from two given arrays");
+                         ulxr::Signature(ulxr::Array()),
+                         "mergeArrays",
+                         ulxr::Signature() << ulxr::Array() << ulxr::Array(),
+                         "Return a sorted merged from two given arrays");
 
         server.addMethod(ulxr::make_method(worker, &TestWorker::shutdown),
-                ulxr::Signature(ulxr::Boolean()),
-                "testcall_shutdown",
-                ulxr::Signature(),
-                "Testcase with a dynamic method in a class, shut down server, return old state");
+                         ulxr::Signature(ulxr::Boolean()),
+                         "testcall_shutdown",
+                         ulxr::Signature(),
+                         "Testcase with a dynamic method in a class, shut down server, return old state");
 
         prot->setAcceptCookies(true);
 
@@ -212,7 +212,7 @@ int main(int argc, char **argv)
         {
             try
             {
-                /*timeval startTick, endTick; 
+                /*timeval startTick, endTick;
 
                 std::cout << "\n\nWaiting for connection.....\n";
                 gettimeofday(&startTick, NULL);

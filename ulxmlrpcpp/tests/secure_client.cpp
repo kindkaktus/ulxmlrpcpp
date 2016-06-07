@@ -46,72 +46,72 @@
 
 int main(int argc, char **argv)
 {
-  try
-  {
-    ulxr::intializeLogger(argv[0]);
-
-    std::string host = "localhost";
-    if (argc > 1)
-      host = argv[1];
-
-    unsigned port = 32003;
-    if (argc > 2)
-      port = atoi(argv[2]);
-
-    ulxr::TcpIpConnection conn (false, host, port);
-    ulxr::HttpProtocol prot(&conn);
-    ulxr::Requester client(&prot);
-
-    // prepare call
-    ulxr::MethodCall secure_shutdown ("secure_shutdown");
-
-    // put call in encrypted envelope, base64 encoded  for transmission
-    ulxr::MethodCall secureDispatcher ("secureDispatcher");
-    secureDispatcher.addParam(ulxr::Base64(ulxr::encodeBase64(secure_shutdown.getXml())));
-    ULXR_TRACE(secure_shutdown.getXml());
-
-    // send call
-    ulxr::MethodResponse resp = client.call(secureDispatcher, "/SecureRPC", "ali-baba", "open-sesame");
-    if (resp.isOK() )
+    try
     {
-      // base64-decode and decrypt response
-      ulxr::Base64 respdata = resp.getResult();
-      ULXR_TRACE(respdata.getString());
+        ulxr::intializeLogger(argv[0]);
 
-      std::string xml_resp = ulxr::decodeBase64(respdata.getString());
-      ULXR_TRACE(xml_resp);
+        std::string host = "localhost";
+        if (argc > 1)
+            host = argv[1];
 
-      // parse response to access result
-      ulxr::MethodResponseParser parser;
-      bool done = false;
-      if (!parser.parse(xml_resp.data(), xml_resp.length(), done))
-      {
-        throw ulxr::XmlException(parser.mapToFaultCode(parser.getErrorCode()),
-                               "Problem while parsing decrypted xml request",
-                               parser.getCurrentLineNumber(),
-                               parser.getErrorString(parser.getErrorCode()));
-      }
+        unsigned port = 32003;
+        if (argc > 2)
+            port = atoi(argv[2]);
 
-      resp = parser.getMethodResponse();
+        ulxr::TcpIpConnection conn (false, host, port);
+        ulxr::HttpProtocol prot(&conn);
+        ulxr::Requester client(&prot);
 
-      std::cout << "secure call result: \n";
-      std::cout << resp.getXml(0);
+        // prepare call
+        ulxr::MethodCall secure_shutdown ("secure_shutdown");
+
+        // put call in encrypted envelope, base64 encoded  for transmission
+        ulxr::MethodCall secureDispatcher ("secureDispatcher");
+        secureDispatcher.addParam(ulxr::Base64(ulxr::encodeBase64(secure_shutdown.getXml())));
+        ULXR_TRACE(secure_shutdown.getXml());
+
+        // send call
+        ulxr::MethodResponse resp = client.call(secureDispatcher, "/SecureRPC", "ali-baba", "open-sesame");
+        if (resp.isOK() )
+        {
+            // base64-decode and decrypt response
+            ulxr::Base64 respdata = resp.getResult();
+            ULXR_TRACE(respdata.getString());
+
+            std::string xml_resp = ulxr::decodeBase64(respdata.getString());
+            ULXR_TRACE(xml_resp);
+
+            // parse response to access result
+            ulxr::MethodResponseParser parser;
+            bool done = false;
+            if (!parser.parse(xml_resp.data(), xml_resp.length(), done))
+            {
+                throw ulxr::XmlException(parser.mapToFaultCode(parser.getErrorCode()),
+                                         "Problem while parsing decrypted xml request",
+                                         parser.getCurrentLineNumber(),
+                                         parser.getErrorString(parser.getErrorCode()));
+            }
+
+            resp = parser.getMethodResponse();
+
+            std::cout << "secure call result: \n";
+            std::cout << resp.getXml(0);
+        }
+        else
+        {
+            std::cout << "Error while transmitting secured method call\n";
+            std::cout << "envelope call result: \n";
+            std::cout << resp.getXml(0);
+        }
     }
-    else
+    catch(ulxr::Exception &ex)
     {
-      std::cout << "Error while transmitting secured method call\n";
-      std::cout << "envelope call result: \n";
-      std::cout << resp.getXml(0);
+        std::cout << "Error occured: " << ex.why() << std::endl;
     }
-  }
-  catch(ulxr::Exception &ex)
-  {
-     std::cout << "Error occured: " << ex.why() << std::endl;
-  }
-  catch(...)
-  {
-     std::cout << "unknown Error occured.\n";
-  }
+    catch(...)
+    {
+        std::cout << "unknown Error occured.\n";
+    }
 
-  return 0;
+    return 0;
 }

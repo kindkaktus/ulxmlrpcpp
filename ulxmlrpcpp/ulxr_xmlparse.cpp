@@ -39,59 +39,59 @@
 namespace ulxr {
 
 
- XmlParser::XmlParser()
-  : ExpatWrapper()
-{
-}
+    XmlParser::XmlParser()
+        : ExpatWrapper()
+    {
+    }
 
 
-void XmlParser::charData(const XML_Char *s, int len)
-{
-  ULXR_TRACE("XmlParser::charData(const XML_Char*, int)"
-/*             << "\n  len: " << len
-             << "\n  s: >>"
-             << std::string(s, len)
-             << "<<"
-*/
-            );
-  states.top()->appendCharData(s, len);
-  ULXR_TRACE("XmlParser::charData(const XML_Char*, int) finished");
-}
+    void XmlParser::charData(const XML_Char *s, int len)
+    {
+        ULXR_TRACE("XmlParser::charData(const XML_Char*, int)"
+                   /*             << "\n  len: " << len
+                                << "\n  s: >>"
+                                << std::string(s, len)
+                                << "<<"
+                   */
+                  );
+        states.top()->appendCharData(s, len);
+        ULXR_TRACE("XmlParser::charData(const XML_Char*, int) finished");
+    }
 
 
-bool XmlParser::testStartElement(const XML_Char *name, const XML_Char ** /*atts*/)
-{
-  throw XmlException(NotWellformedError,
-                  "Problem while parsing xml structure",
-                  getCurrentLineNumber(),
-                  "unexpected opening tag: "+std::string(name) );
-}
+    bool XmlParser::testStartElement(const XML_Char *name, const XML_Char ** /*atts*/)
+    {
+        throw XmlException(NotWellformedError,
+                           "Problem while parsing xml structure",
+                           getCurrentLineNumber(),
+                           "unexpected opening tag: "+std::string(name) );
+    }
 
 
-bool XmlParser::testEndElement(const XML_Char *name)
-{
-  throw XmlException(NotWellformedError,
-                  "Problem while parsing xml structure",
-                  getCurrentLineNumber(),
-                  "unexpected closing tag: "+std::string(name) );
-}
+    bool XmlParser::testEndElement(const XML_Char *name)
+    {
+        throw XmlException(NotWellformedError,
+                           "Problem while parsing xml structure",
+                           getCurrentLineNumber(),
+                           "unexpected closing tag: "+std::string(name) );
+    }
 
 
-void XmlParser::assertEndElement(const char *current, const char *expected)
-{
-  ULXR_TRACE("XmlParser::assertEndElement(const char*, const char*): "
-             << "\n curr: "
-             << current
-             << " exp: "
-             << expected
-             );
-  if (0 != strcmp(current, expected))
-    throw XmlException(NotWellformedError,
-                       (std::string)"Unexpected xml tag: " + current
-                       + ", wanted: " + expected,
-                       getCurrentLineNumber(),
-                       "Document not wellformed");
-}
+    void XmlParser::assertEndElement(const char *current, const char *expected)
+    {
+        ULXR_TRACE("XmlParser::assertEndElement(const char*, const char*): "
+                   << "\n curr: "
+                   << current
+                   << " exp: "
+                   << expected
+                  );
+        if (0 != strcmp(current, expected))
+            throw XmlException(NotWellformedError,
+                               (std::string)"Unexpected xml tag: " + current
+                               + ", wanted: " + expected,
+                               getCurrentLineNumber(),
+                               "Document not wellformed");
+    }
 
 
 }  // namespace ulxr

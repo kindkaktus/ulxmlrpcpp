@@ -35,96 +35,96 @@
 namespace ulxr {
 
 
- XmlParserBase::XmlParserBase()
-{
-  ULXR_TRACE("XmlParserBase::XmlParserBase()");
-  complete = false;
-}
+    XmlParserBase::XmlParserBase()
+    {
+        ULXR_TRACE("XmlParserBase::XmlParserBase()");
+        complete = false;
+    }
 
 
- XmlParserBase::~XmlParserBase()
-{
-}
+    XmlParserBase::~XmlParserBase()
+    {
+    }
 
 
-void XmlParserBase::clearStates()
-{
-  while (!states.empty())
-  {
-    delete states.top();
-    states.pop();
-  }
-}
+    void XmlParserBase::clearStates()
+    {
+        while (!states.empty())
+        {
+            delete states.top();
+            states.pop();
+        }
+    }
 
-bool XmlParserBase::isComplete() const
-{
-  return complete;
-}
+    bool XmlParserBase::isComplete() const
+    {
+        return complete;
+    }
 
 
-void XmlParserBase::setComplete(bool comp)
-{
-  complete = comp;
-}
+    void XmlParserBase::setComplete(bool comp)
+    {
+        complete = comp;
+    }
 
 
 //////////////////////////////////////////////////////////////////////////
 //
 
- XmlParserBase::ParserState::ParserState (unsigned st)
-  : state(st)
-  , prevstate(eUnknown)
-{
-}
+    XmlParserBase::ParserState::ParserState (unsigned st)
+        : state(st)
+        , prevstate(eUnknown)
+    {
+    }
 
 
- XmlParserBase::ParserState::~ParserState()
-{
-}
+    XmlParserBase::ParserState::~ParserState()
+    {
+    }
 
 
-unsigned XmlParserBase::ParserState::getParserState() const
-{
-  return state;
-}
+    unsigned XmlParserBase::ParserState::getParserState() const
+    {
+        return state;
+    }
 
 
-unsigned XmlParserBase::ParserState::getPrevParserState() const
-{
-  return prevstate;
-}
+    unsigned XmlParserBase::ParserState::getPrevParserState() const
+    {
+        return prevstate;
+    }
 
 
-void XmlParserBase::ParserState::setPrevParserState(unsigned prev)
-{
-  prevstate = prev;
-}
+    void XmlParserBase::ParserState::setPrevParserState(unsigned prev)
+    {
+        prevstate = prev;
+    }
 
 
-std::string XmlParserBase::ParserState::getStateName() const
-{
-  return "eUnknown";
-}
+    std::string XmlParserBase::ParserState::getStateName() const
+    {
+        return "eUnknown";
+    }
 
 
-void XmlParserBase::ParserState::appendCharData(const std::string &/*s*/)
-{
-  ULXR_TRACE("XmlParserBase::ParserState::appendCharData(const std::string &)");
-}
+    void XmlParserBase::ParserState::appendCharData(const std::string &/*s*/)
+    {
+        ULXR_TRACE("XmlParserBase::ParserState::appendCharData(const std::string &)");
+    }
 
 
-void XmlParserBase::ParserState::appendCharData(const XML_Char *s, int len)
-{
-  ULXR_TRACE("XmlParserBase::ParserState::appendCharData(const XML_Char *, int)");
-  cdata.append(s, len);
-}
+    void XmlParserBase::ParserState::appendCharData(const XML_Char *s, int len)
+    {
+        ULXR_TRACE("XmlParserBase::ParserState::appendCharData(const XML_Char *, int)");
+        cdata.append(s, len);
+    }
 
 
-std::string XmlParserBase::ParserState::getCharData() const
-{
-  ULXR_TRACE("XmlParserBase::ParserState::getCharData()");
-  return cdata;
-}
+    std::string XmlParserBase::ParserState::getCharData() const
+    {
+        ULXR_TRACE("XmlParserBase::ParserState::getCharData()");
+        return cdata;
+    }
 
 
 }  // namespace ulxr

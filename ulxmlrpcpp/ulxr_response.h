@@ -37,107 +37,107 @@
 
 namespace ulxr {
 
-class Void;
+    class Void;
 
 
-/** Abstraction of a response from a remote server.
-  * You should take care to interpret the data correctly as XML-RPC
-  * distinguishes between "normal" return values from the remote method
-  * and error messages that indicate problems while transporting and
-  * invoking the call.
-  * @ingroup grp_ulxr_rpc
-  */
-class  MethodResponse
-{
- public:
+    /** Abstraction of a response from a remote server.
+      * You should take care to interpret the data correctly as XML-RPC
+      * distinguishes between "normal" return values from the remote method
+      * and error messages that indicate problems while transporting and
+      * invoking the call.
+      * @ingroup grp_ulxr_rpc
+      */
+    class  MethodResponse
+    {
+    public:
 
- /** Default constructor for an empty response.
-   */
-   explicit MethodResponse();
+        /** Default constructor for an empty response.
+          */
+        explicit MethodResponse();
 
- /** Destroys the method response.
-   */
-   virtual ~MethodResponse();
+        /** Destroys the method response.
+          */
+        virtual ~MethodResponse();
 
- /** Constructs a "fault reponse" to indicate RPC problems.
-   * The number and string are system dependent.
-   * @param  fval   error code
-   * @param  fstr   human readable desciption of the error
-   */
-   MethodResponse(int fval, const std::string &fstr);
+        /** Constructs a "fault reponse" to indicate RPC problems.
+          * The number and string are system dependent.
+          * @param  fval   error code
+          * @param  fstr   human readable desciption of the error
+          */
+        MethodResponse(int fval, const std::string &fstr);
 
- /** Constructs a return value from the remote method.
-   * the value can be of any type. To return more than one
-   * Value at once use an array or a Struct.
-   * @param  val   the return value.
-   */
-   MethodResponse (const Value &val);
+        /** Constructs a return value from the remote method.
+          * the value can be of any type. To return more than one
+          * Value at once use an array or a Struct.
+          * @param  val   the return value.
+          */
+        MethodResponse (const Value &val);
 
- /** Constructs an empty return value from the remote method.
-   * Only exists for completeness and yields the same as the default constructor.
-   * @param  val   the return value.
-   */
-   MethodResponse (const Void &val);
+        /** Constructs an empty return value from the remote method.
+          * Only exists for completeness and yields the same as the default constructor.
+          * @param  val   the return value.
+          */
+        MethodResponse (const Void &val);
 
- /** Returns the signature of this call.
-   * The signature consists of all type names in this call delimited by
-   * commas. Elements of arrays are surrounded by braces. Structure elements
-   * and element pairs of structs are grouped by curly braces.
-   *
-   * Example:
-   * <pre>
-   *  Array:  [int,double,string]
-   *  Struct: {{first,int},{second,double}}
-   * </pre>
-   *
-   * @param deep  if nested types exist, include them
-   * @return  The signature
-   */
-   virtual std::string getSignature(bool deep = false) const;
+        /** Returns the signature of this call.
+          * The signature consists of all type names in this call delimited by
+          * commas. Elements of arrays are surrounded by braces. Structure elements
+          * and element pairs of structs are grouped by curly braces.
+          *
+          * Example:
+          * <pre>
+          *  Array:  [int,double,string]
+          *  Struct: {{first,int},{second,double}}
+          * </pre>
+          *
+          * @param deep  if nested types exist, include them
+          * @return  The signature
+          */
+        virtual std::string getSignature(bool deep = false) const;
 
- /** Returns the call as xml string.
-   * The method cal is converted to an xml text. It is prepended with
-   * the necessary xml procession instruction with version and encoding
-   * set to UTF-8. The structure of the text is indented to facilitate
-   * easy reading.
-   * @param  indent   current indentation level
-   * @return  The xml conentent
-   */
-   virtual std::string getXml(int indent = 0) const;
+        /** Returns the call as xml string.
+          * The method cal is converted to an xml text. It is prepended with
+          * the necessary xml procession instruction with version and encoding
+          * set to UTF-8. The structure of the text is indented to facilitate
+          * easy reading.
+          * @param  indent   current indentation level
+          * @return  The xml conentent
+          */
+        virtual std::string getXml(int indent = 0) const;
 
- /** Constructs a "fault reponse" to indicate RPC problems.
-   * The number and string are system dependent.
-   * @param  fval   error code
-   * @param  fstr   human readable desciption of the error
-   */
-   void setFault(int fval, const std::string &fstr);
+        /** Constructs a "fault reponse" to indicate RPC problems.
+          * The number and string are system dependent.
+          * @param  fval   error code
+          * @param  fstr   human readable desciption of the error
+          */
+        void setFault(int fval, const std::string &fstr);
 
- /** Sets the return value from the remote method.
-   * The value can be of any type. To return more than one
-   * Value at once use an Array or a Struct.
-   * @param  val   the return value.
-   */
-   void setResult (const Value &val);
+        /** Sets the return value from the remote method.
+          * The value can be of any type. To return more than one
+          * Value at once use an Array or a Struct.
+          * @param  val   the return value.
+          */
+        void setResult (const Value &val);
 
- /** Gets the return value from the remote method.
-   * The value can be of any type, even an Array or a Struct.
-   * If the response is faulty, is contains a Struct with two elements:
-   *  @li  an int named "faultCode"
-   *  @li  a string with name "faultString"
-   * @return the return value.
-   */
-   const Value& getResult() const;
+        /** Gets the return value from the remote method.
+          * The value can be of any type, even an Array or a Struct.
+          * If the response is faulty, is contains a Struct with two elements:
+          *  @li  an int named "faultCode"
+          *  @li  a string with name "faultString"
+          * @return the return value.
+          */
+        const Value& getResult() const;
 
- /** Tests the method response state.
-   * @return  true if RPC processing went OK.
-   */
-   bool isOK() const;
+        /** Tests the method response state.
+          * @return  true if RPC processing went OK.
+          */
+        bool isOK() const;
 
- private:
+    private:
 
-   bool   wasOk;
-   Value  respval;
-};
+        bool   wasOk;
+        Value  respval;
+    };
 
 
 }  // namespace ulxr

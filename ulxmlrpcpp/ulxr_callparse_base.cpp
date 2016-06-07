@@ -37,50 +37,50 @@
 namespace ulxr {
 
 
- MethodCallParserBase::~MethodCallParserBase()
-{
-}
+    MethodCallParserBase::~MethodCallParserBase()
+    {
+    }
 
 
-unsigned MethodCallParserBase::numParams() const
-{
-  return methodcall.numParams();
-}
+    unsigned MethodCallParserBase::numParams() const
+    {
+        return methodcall.numParams();
+    }
 
 
-Value MethodCallParserBase::getParam(unsigned ind) const
-{
-  return methodcall.getParam(ind);
-}
+    Value MethodCallParserBase::getParam(unsigned ind) const
+    {
+        return methodcall.getParam(ind);
+    }
 
 
-std::string MethodCallParserBase::getMethodName() const
-{
-  return methodcall.getMethodName();
-}
+    std::string MethodCallParserBase::getMethodName() const
+    {
+        return methodcall.getMethodName();
+    }
 
 
-MethodCall MethodCallParserBase::getMethodCall() const
-{
-  return methodcall;
-}
+    MethodCall MethodCallParserBase::getMethodCall() const
+    {
+        return methodcall;
+    }
 
 
-/*
-string MethodCallParserBase::ValueState::getStateName() const
-{
-  switch (state)
-  {
-    case eMethodCall      : return "eMethodCall";
-    case eMethodName      : return "eMethodName";
-    case eParams          : return "eParams";
-    case eParam           : return "eParam";
-    case eCallParserLast  : return "eCallParserLast";
-  }
+    /*
+    string MethodCallParserBase::ValueState::getStateName() const
+    {
+      switch (state)
+      {
+        case eMethodCall      : return "eMethodCall";
+        case eMethodName      : return "eMethodName";
+        case eParams          : return "eParams";
+        case eParam           : return "eParam";
+        case eCallParserLast  : return "eCallParserLast";
+      }
 
-  return ValueParser::getStateName();
-}
-*/
+      return ValueParser::getStateName();
+    }
+    */
 
 }  // namespace ulxr
 

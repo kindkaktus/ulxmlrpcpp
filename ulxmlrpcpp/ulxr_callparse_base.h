@@ -39,51 +39,51 @@
 namespace ulxr {
 
 
-/** An xml parser for a MethodCall.
-  * @ingroup grp_ulxr_parser
-  */
-class  MethodCallParserBase
-{
- public:
+    /** An xml parser for a MethodCall.
+      * @ingroup grp_ulxr_parser
+      */
+    class  MethodCallParserBase
+    {
+    public:
 
- /** Destroy parser.
-   */
-   virtual ~MethodCallParserBase();
+        /** Destroy parser.
+          */
+        virtual ~MethodCallParserBase();
 
- /** Gets the number of parameters in the method call.
-   * @return amount of parameters.
-   */
-   unsigned numParams() const;
+        /** Gets the number of parameters in the method call.
+          * @return amount of parameters.
+          */
+        unsigned numParams() const;
 
- /** Gets the amount of parameters in the method call.
-   * @param  ind    index of the parameter
-   * @return Value of the parameter
-   */
-   Value getParam(unsigned ind) const;
+        /** Gets the amount of parameters in the method call.
+          * @param  ind    index of the parameter
+          * @return Value of the parameter
+          */
+        Value getParam(unsigned ind) const;
 
- /** Gets the name of the method.
-   * @return the method name.
-   */
-   std::string getMethodName() const;
+        /** Gets the name of the method.
+          * @return the method name.
+          */
+        std::string getMethodName() const;
 
- /** Gets the complete MethodCall with all its data.
-   * @return the method.
-   */
-   MethodCall getMethodCall() const;
+        /** Gets the complete MethodCall with all its data.
+          * @return the method.
+          */
+        MethodCall getMethodCall() const;
 
-   enum CallState
-   {
-     eMethodCall = ValueParserBase::eValueParserLast,
-     eMethodName,
-     eParams,
-     eParam,
-     eCallParserLast
-   };
+        enum CallState
+        {
+            eMethodCall = ValueParserBase::eValueParserLast,
+            eMethodName,
+            eParams,
+            eParam,
+            eCallParserLast
+        };
 
- protected:
+    protected:
 
-    MethodCall   methodcall;
-};
+        MethodCall   methodcall;
+    };
 
 
 }  // namespace ulxr

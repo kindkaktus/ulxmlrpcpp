@@ -38,166 +38,166 @@
 namespace ulxr {
 
 
-/** Base class for XML RPC exceptions.
-  * @ingroup grp_ulxr_utilit
-  */
-class  Exception : public std::exception
-{
- public:
+    /** Base class for XML RPC exceptions.
+      * @ingroup grp_ulxr_utilit
+      */
+    class  Exception : public std::exception
+    {
+    public:
 
- /** Constructs an exception.
-   * @param fc number representing the error class
-   * @param s  the reason for the exception
-   */
-   Exception(int fc, const std::string &s);
+        /** Constructs an exception.
+          * @param fc number representing the error class
+          * @param s  the reason for the exception
+          */
+        Exception(int fc, const std::string &s);
 
- /** Destroys the exception.
-   */
-   virtual ~Exception()  throw();
+        /** Destroys the exception.
+          */
+        virtual ~Exception()  throw();
 
- /** Gets the reason for the exception.
-   * @return   the reason
-   */
-   virtual std::string why() const;
+        /** Gets the reason for the exception.
+          * @return   the reason
+          */
+        virtual std::string why() const;
 
- /** Gets a number representing the error.
-   * @return   the fault code
-   */
-   virtual int getFaultCode() const;
+        /** Gets a number representing the error.
+          * @return   the fault code
+          */
+        virtual int getFaultCode() const;
 
-  /** Returns the exception description.
-    * Provided for compatibility with std::exception. If Unicode is
-    * activated you might get corrupt information if you are beyond
-    * latin1 characters.
-    * @return   description as pointer to a latin1 string.
-    */
-    virtual const char *what() const throw();
+        /** Returns the exception description.
+          * Provided for compatibility with std::exception. If Unicode is
+          * activated you might get corrupt information if you are beyond
+          * latin1 characters.
+          * @return   description as pointer to a latin1 string.
+          */
+        virtual const char *what() const throw();
 
- private:
+    private:
 
-  std::string reason;
-  int    faultcode;
-  mutable std::string  what_helper;
-};
-
-
-/** Exception due to connection or network problems.
-  */
-class  ConnectionException : public Exception
-{
- public:
-
- /** Constructs a connection exception.
-   * @param fc      number representing the error class
-   * @param stat    the error number (default is according to http documentation if applicable)
-   * @param phrase  a human readable phrase describing the status
-   */
-   ConnectionException(int fc, const std::string &phrase, int stat);
-
- /** Destroys the exception.
-   */
-   virtual ~ConnectionException()  throw();
-
- /** Gets the status number.
-   * @return status number
-   */
-   int getStatusCode() const;
-
- private:
-
-   int    status;
-};
+        std::string reason;
+        int    faultcode;
+        mutable std::string  what_helper;
+    };
 
 
-/** Exception due to runtime errors.
-  */
-class  RuntimeException : public Exception
-{
- public:
+    /** Exception due to connection or network problems.
+      */
+    class  ConnectionException : public Exception
+    {
+    public:
 
- /** Constructs a runtime exception.
-   * @param fc number representing the error class
-   * @param s  the reason for the exception
-   */
-   RuntimeException(int fc, const std::string &s);
+        /** Constructs a connection exception.
+          * @param fc      number representing the error class
+          * @param stat    the error number (default is according to http documentation if applicable)
+          * @param phrase  a human readable phrase describing the status
+          */
+        ConnectionException(int fc, const std::string &phrase, int stat);
 
- /** Destroys the exception.
-   */
-   virtual ~RuntimeException()  throw();
-};
+        /** Destroys the exception.
+          */
+        virtual ~ConnectionException()  throw();
 
+        /** Gets the status number.
+          * @return status number
+          */
+        int getStatusCode() const;
 
-/** XML RPC exception due to a faulty xml structure.
-  */
-class  XmlException : public Exception
-{
- public:
+    private:
 
- /** Constructs an xml exception.
-   * @param fc   number representing the error class
-   * @param s    the reason for the exception
-   * @param l    the faulty line (relative to the body start!)
-   * @param err  a human readable error string
-   */
-   XmlException(int fc, const std::string &s, int l, const std::string &err);
-
- /** Destroys the exception.
-   */
-   virtual ~XmlException()  throw();
-
- /** Gets the line number of the error.
-   * @return the line number
-   */
-   int getErrorLine() const;
-
- /** Gets the error string.
-   * @return the string
-   */
-   std::string getErrorString() const;
-
- private:
-
-  int        line;
-  std::string  xmlerror;
-};
+        int    status;
+    };
 
 
-/** XML RPC exception due to faulty rpc parameters.
-  * One possibility is the wrong type.
-  */
-class  ParameterException : public Exception
-{
- public:
+    /** Exception due to runtime errors.
+      */
+    class  RuntimeException : public Exception
+    {
+    public:
 
- /** Constructs a parameter exception.
-   * @param fc number representing the error class
-   * @param s  the reason for the exception
-   */
-   ParameterException(int fc, const std::string &s);
+        /** Constructs a runtime exception.
+          * @param fc number representing the error class
+          * @param s  the reason for the exception
+          */
+        RuntimeException(int fc, const std::string &s);
 
- /** Destroys the exception.
-   */
-   virtual ~ParameterException()  throw();
-};
+        /** Destroys the exception.
+          */
+        virtual ~RuntimeException()  throw();
+    };
 
 
-/** XML RPC exception due to problems while executing
-  * the remote method. User fault codes should be positive.
-  */
-class  MethodException : public Exception
-{
- public:
+    /** XML RPC exception due to a faulty xml structure.
+      */
+    class  XmlException : public Exception
+    {
+    public:
 
- /** Constructs a method exception.
-   * @param fc   number representing the error class
-   * @param s    the reason for the exception
-   */
-   MethodException(int fc, const std::string &s);
+        /** Constructs an xml exception.
+          * @param fc   number representing the error class
+          * @param s    the reason for the exception
+          * @param l    the faulty line (relative to the body start!)
+          * @param err  a human readable error string
+          */
+        XmlException(int fc, const std::string &s, int l, const std::string &err);
 
- /** Destroys the exception.
-   */
-   virtual ~MethodException()  throw();
-};
+        /** Destroys the exception.
+          */
+        virtual ~XmlException()  throw();
+
+        /** Gets the line number of the error.
+          * @return the line number
+          */
+        int getErrorLine() const;
+
+        /** Gets the error string.
+          * @return the string
+          */
+        std::string getErrorString() const;
+
+    private:
+
+        int        line;
+        std::string  xmlerror;
+    };
+
+
+    /** XML RPC exception due to faulty rpc parameters.
+      * One possibility is the wrong type.
+      */
+    class  ParameterException : public Exception
+    {
+    public:
+
+        /** Constructs a parameter exception.
+          * @param fc number representing the error class
+          * @param s  the reason for the exception
+          */
+        ParameterException(int fc, const std::string &s);
+
+        /** Destroys the exception.
+          */
+        virtual ~ParameterException()  throw();
+    };
+
+
+    /** XML RPC exception due to problems while executing
+      * the remote method. User fault codes should be positive.
+      */
+    class  MethodException : public Exception
+    {
+    public:
+
+        /** Constructs a method exception.
+          * @param fc   number representing the error class
+          * @param s    the reason for the exception
+          */
+        MethodException(int fc, const std::string &s);
+
+        /** Destroys the exception.
+          */
+        virtual ~MethodException()  throw();
+    };
 
 
 } // namespace

@@ -41,150 +41,150 @@
 namespace ulxr {
 
 
-/** Base class for XML parsing.
-  * @ingroup grp_ulxr_parser
-  */
-class  XmlParserBase
-{
- public:
+    /** Base class for XML parsing.
+      * @ingroup grp_ulxr_parser
+      */
+    class  XmlParserBase
+    {
+    public:
 
- /** Constructs a parser.
-   */
-   XmlParserBase();
+        /** Constructs a parser.
+          */
+        XmlParserBase();
 
- /** Destroys the parser.
-   * The derived class is responsible for cleaning up stack<ParserState*>.
-   */
-   virtual ~XmlParserBase();
+        /** Destroys the parser.
+          * The derived class is responsible for cleaning up stack<ParserState*>.
+          */
+        virtual ~XmlParserBase();
 
- /** Tests if parsing has completed.
-   * Completed means that all opening tags have been correctly closed.
-   * @return true if completed
-   */
-   bool isComplete() const;
+        /** Tests if parsing has completed.
+          * Completed means that all opening tags have been correctly closed.
+          * @return true if completed
+          */
+        bool isComplete() const;
 
- /** Sets the complete state.
-   * @param  comp true if file read
-   */
-   void setComplete(bool comp);
+        /** Sets the complete state.
+          * @param  comp true if file read
+          */
+        void setComplete(bool comp);
 
- /** Parse a pice of xml data.
-   * @param buffer   pointer start of next data chunk
-   * @param len      len of this chunk
-   * @param isFinal  true: last call to parser
-   * @return error condition, 0 = ok
-   */
-   virtual int parse(const char* buffer, int len, int isFinal) = 0;
+        /** Parse a pice of xml data.
+          * @param buffer   pointer start of next data chunk
+          * @param len      len of this chunk
+          * @param isFinal  true: last call to parser
+          * @return error condition, 0 = ok
+          */
+        virtual int parse(const char* buffer, int len, int isFinal) = 0;
 
-  /** Gets the code for the current error.
-   * @return error code
-   */
-   virtual unsigned getErrorCode() const = 0;
+        /** Gets the code for the current error.
+         * @return error code
+         */
+        virtual unsigned getErrorCode() const = 0;
 
- /** Gets the description for an error code
-   * @param code  error code
-   * @return  pointer to description
-   */
-   virtual std::string getErrorString(unsigned code) const = 0;
+        /** Gets the description for an error code
+          * @param code  error code
+          * @return  pointer to description
+          */
+        virtual std::string getErrorString(unsigned code) const = 0;
 
- /** Gets the line number in the xml data.
-   * Because the binary data has nothing like a line number, the occurence number
-   * of the previous tag is returned.
-   * @return  line number
-   */
-   virtual int getCurrentLineNumber() const = 0;
+        /** Gets the line number in the xml data.
+          * Because the binary data has nothing like a line number, the occurence number
+          * of the previous tag is returned.
+          * @return  line number
+          */
+        virtual int getCurrentLineNumber() const = 0;
 
- /** Maps expat error codes to xml-rpc error codes.
-   * @param  xpatcode   error code from expat
-   * @return  the according xml-rpc error
-   */
-   virtual int mapToFaultCode(int xpatcode) const = 0;
+        /** Maps expat error codes to xml-rpc error codes.
+          * @param  xpatcode   error code from expat
+          * @return  the according xml-rpc error
+          */
+        virtual int mapToFaultCode(int xpatcode) const = 0;
 
-   enum State
-   {
-     eNone,               //!<  state after start
-     eUnknown,            //!<  unknwon state when an error occured
-     eXmlParserLast       //!<  used to chain next parser class
-   };
+        enum State
+        {
+            eNone,               //!<  state after start
+            eUnknown,            //!<  unknwon state when an error occured
+            eXmlParserLast       //!<  used to chain next parser class
+        };
 
-/** Helper class to represent the data of the current parsing step.
-  */
-  class  ParserState
-  {
-   public:
+        /** Helper class to represent the data of the current parsing step.
+          */
+        class  ParserState
+        {
+        public:
 
-   /** Constructs a ParserState.
-     * @param  st  the actual ParserState
-     */
-     ParserState (unsigned st);
+            /** Constructs a ParserState.
+              * @param  st  the actual ParserState
+              */
+            ParserState (unsigned st);
 
-   /** Destroys the ParserState.
-     */
-     virtual ~ParserState();
+            /** Destroys the ParserState.
+              */
+            virtual ~ParserState();
 
-   /** Gets the ParserState of this ParserState
-     * @return the actual ParserState
-     */
-     unsigned getParserState() const;
+            /** Gets the ParserState of this ParserState
+              * @return the actual ParserState
+              */
+            unsigned getParserState() const;
 
-   /** Gets the privious ParserState
-     * @return the previous ParserState
-     */
-     unsigned getPrevParserState() const;
+            /** Gets the privious ParserState
+              * @return the previous ParserState
+              */
+            unsigned getPrevParserState() const;
 
-   /** Sets the privious ParserState
-     * @param  prev the previous ParserState
-     */
-     void setPrevParserState(unsigned prev);
+            /** Sets the privious ParserState
+              * @param  prev the previous ParserState
+              */
+            void setPrevParserState(unsigned prev);
 
-   /** Gets the name of the ParserState.
-     * Useful only for debugging.
-     * @return the name of actual ParserState
-     */
-     virtual std::string getStateName() const;
+            /** Gets the name of the ParserState.
+              * Useful only for debugging.
+              * @return the name of actual ParserState
+              */
+            virtual std::string getStateName() const;
 
-   /** Appends some characters of the ParserState.
-     * This is a part of the data of an xml rpc element.
-     * @param  s   the current chunk of text
-     * @param  len valid len.
-     */
-     void appendCharData(const XML_Char *s, int len);
+            /** Appends some characters of the ParserState.
+              * This is a part of the data of an xml rpc element.
+              * @param  s   the current chunk of text
+              * @param  len valid len.
+              */
+            void appendCharData(const XML_Char *s, int len);
 
-   /** Appends some characters of the ParserState.
-     * This is a part of the data of an xml rpc element.
-     * @param  s   the current chunk of text
-     */
-     void appendCharData(const std::string &s);
+            /** Appends some characters of the ParserState.
+              * This is a part of the data of an xml rpc element.
+              * @param  s   the current chunk of text
+              */
+            void appendCharData(const std::string &s);
 
-   /** Gets the characters of the ParserState.
-     * @return  the data element
-     */
-     std::string getCharData() const;
+            /** Gets the characters of the ParserState.
+              * @return  the data element
+              */
+            std::string getCharData() const;
 
-   private:
+        private:
 
-     ParserState(const ParserState&); // forbid this
-     ParserState& operator= (const ParserState&);
+            ParserState(const ParserState&); // forbid this
+            ParserState& operator= (const ParserState&);
 
-     std::string  cdata;
-     unsigned   state;
-     unsigned   prevstate;
-  };
+            std::string  cdata;
+            unsigned   state;
+            unsigned   prevstate;
+        };
 
- protected:
+    protected:
 
- /** Removes all states from the state stack.
-   */
-   void clearStates();
+        /** Removes all states from the state stack.
+          */
+        void clearStates();
 
- protected:
+    protected:
 
-   std::stack<ParserState*>  states;
+        std::stack<ParserState*>  states;
 
- private:
+    private:
 
-   bool complete;
-};
+        bool complete;
+    };
 
 
 }  // namespace ulxr

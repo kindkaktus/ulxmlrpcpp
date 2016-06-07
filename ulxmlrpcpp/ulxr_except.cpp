@@ -34,125 +34,125 @@
 
 namespace ulxr {
 
- Exception::Exception(int fc, const std::string &s) : std::exception(),
-   reason(s), faultcode(fc)
-{
-  ULXR_DOUT("=== Exception: " << s);
-}
+    Exception::Exception(int fc, const std::string &s) : std::exception(),
+        reason(s), faultcode(fc)
+    {
+        ULXR_DOUT("=== Exception: " << s);
+    }
 
 
- Exception::~Exception() throw()
-{
-}
+    Exception::~Exception() throw()
+    {
+    }
 
 
-std::string Exception::why() const
-{
-  return reason;
-}
+    std::string Exception::why() const
+    {
+        return reason;
+    }
 
 
-const char* Exception::what() const throw()
-{
-  what_helper = why();
-  return what_helper.c_str();
-}
+    const char* Exception::what() const throw()
+    {
+        what_helper = why();
+        return what_helper.c_str();
+    }
 
 
-int Exception::getFaultCode() const
-{
-  return faultcode;
-}
-
-
-/////////////////////////////////////////////////////////////////////////
-
-
- ConnectionException::ConnectionException(int fc, const std::string &phrase, int stat)
-  : Exception(fc, phrase)
-  , status(stat)
-{
-}
-
-
- ConnectionException::~ConnectionException() throw()
-{
-}
-
-
-int ConnectionException::getStatusCode() const
-{
-  return status;
-}
+    int Exception::getFaultCode() const
+    {
+        return faultcode;
+    }
 
 
 /////////////////////////////////////////////////////////////////////////
 
 
- RuntimeException::RuntimeException(int fc, const std::string &s)
-  : Exception(fc, s)
-{
-}
+    ConnectionException::ConnectionException(int fc, const std::string &phrase, int stat)
+        : Exception(fc, phrase)
+        , status(stat)
+    {
+    }
 
 
- RuntimeException::~RuntimeException() throw()
-{
-}
+    ConnectionException::~ConnectionException() throw()
+    {
+    }
 
 
-/////////////////////////////////////////////////////////////////////////
-
-
- XmlException::XmlException(int fc, const std::string &s, int l,
-                                       const std::string &err)
-  : Exception(fc, s), line(l), xmlerror(err)
-{
-}
-
-
- XmlException::~XmlException() throw()
-{
-}
-
-
-int XmlException::getErrorLine() const
-{
-  return line;
-}
-
-
-std::string XmlException::getErrorString() const
-{
-  return xmlerror;
-}
+    int ConnectionException::getStatusCode() const
+    {
+        return status;
+    }
 
 
 /////////////////////////////////////////////////////////////////////////
 
 
- ParameterException::ParameterException(int fc, const std::string &s)
-  : Exception(fc, s)
-{
-}
+    RuntimeException::RuntimeException(int fc, const std::string &s)
+        : Exception(fc, s)
+    {
+    }
 
 
- ParameterException::~ParameterException()  throw()
-{
-}
+    RuntimeException::~RuntimeException() throw()
+    {
+    }
 
 
 /////////////////////////////////////////////////////////////////////////
 
 
- MethodException::MethodException(int fc, const std::string &s)
-  : Exception(fc, s)
-{
-}
+    XmlException::XmlException(int fc, const std::string &s, int l,
+                               const std::string &err)
+        : Exception(fc, s), line(l), xmlerror(err)
+    {
+    }
 
 
- MethodException::~MethodException()  throw()
-{
-}
+    XmlException::~XmlException() throw()
+    {
+    }
+
+
+    int XmlException::getErrorLine() const
+    {
+        return line;
+    }
+
+
+    std::string XmlException::getErrorString() const
+    {
+        return xmlerror;
+    }
+
+
+/////////////////////////////////////////////////////////////////////////
+
+
+    ParameterException::ParameterException(int fc, const std::string &s)
+        : Exception(fc, s)
+    {
+    }
+
+
+    ParameterException::~ParameterException()  throw()
+    {
+    }
+
+
+/////////////////////////////////////////////////////////////////////////
+
+
+    MethodException::MethodException(int fc, const std::string &s)
+        : Exception(fc, s)
+    {
+    }
+
+
+    MethodException::~MethodException()  throw()
+    {
+    }
 
 
 }  // namespace ulxr

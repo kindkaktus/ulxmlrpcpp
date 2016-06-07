@@ -43,124 +43,124 @@
 namespace ulxr {
 
 
-void
-  MethodResponseParser::startElement(const XML_Char* name, const XML_Char** atts)
-{
-  if (!testStartElement(name, atts))
-    ValueParser::testStartElement(name, atts);
-}
+    void
+    MethodResponseParser::startElement(const XML_Char* name, const XML_Char** atts)
+    {
+        if (!testStartElement(name, atts))
+            ValueParser::testStartElement(name, atts);
+    }
 
 
-bool
-  MethodResponseParser::testStartElement(const XML_Char* name, const XML_Char** /*atts*/)
-{
-  ULXR_TRACE("MethodResponseParser::testStartElement(const XML_Char*, const char**)"
-             << "\n  name: "
-             << name
-            );
+    bool
+    MethodResponseParser::testStartElement(const XML_Char* name, const XML_Char** /*atts*/)
+    {
+        ULXR_TRACE("MethodResponseParser::testStartElement(const XML_Char*, const char**)"
+                   << "\n  name: "
+                   << name
+                  );
 
-  switch(states.top()->getParserState() )
-  {
-    case eNone:
-      if(strcmp(name, "methodResponse") == 0)
-      {
-        setComplete (false);
-        states.push(new ValueState(eMethodResponse));
-      }
-      else
-        return false;
-    break;
+        switch(states.top()->getParserState() )
+        {
+        case eNone:
+            if(strcmp(name, "methodResponse") == 0)
+            {
+                setComplete (false);
+                states.push(new ValueState(eMethodResponse));
+            }
+            else
+                return false;
+            break;
 
-    case eMethodResponse:
-      if(strcmp(name, "fault") == 0)
-        states.push(new ValueState(eFault));
+        case eMethodResponse:
+            if(strcmp(name, "fault") == 0)
+                states.push(new ValueState(eFault));
 
-      else if(strcmp(name, "params") == 0)
-        states.push(new ValueState(eParams));
+            else if(strcmp(name, "params") == 0)
+                states.push(new ValueState(eParams));
 
-      else
-        return false;
-    break;
+            else
+                return false;
+            break;
 
-    case eFault:
-      if(strcmp(name, "value") == 0)
-        states.push(new ValueState(eValue));
-      else
-        return false;
-    break;
+        case eFault:
+            if(strcmp(name, "value") == 0)
+                states.push(new ValueState(eValue));
+            else
+                return false;
+            break;
 
-    case eParams:
-      if(strcmp(name, "param") == 0)
-        states.push(new ValueState(eParam));
-      else
-        return false;
-    break;
+        case eParams:
+            if(strcmp(name, "param") == 0)
+                states.push(new ValueState(eParam));
+            else
+                return false;
+            break;
 
-    case eParam:
-      if(strcmp(name, "value") == 0)
-        states.push(new ValueState(eValue));
-      else
-        return false;
-    break;
+        case eParam:
+            if(strcmp(name, "value") == 0)
+                states.push(new ValueState(eValue));
+            else
+                return false;
+            break;
 
-    default:
-        return false;
-  }
+        default:
+            return false;
+        }
 
-  return true;
-}
-
-
-void MethodResponseParser::endElement(const XML_Char *name)
-{
-  if (!testEndElement(name))
-    ValueParser::testEndElement(name);
-}
+        return true;
+    }
 
 
-bool MethodResponseParser::testEndElement(const XML_Char *name)
-{
-  ULXR_TRACE("MethodResponseParser::testEndElement(const XML_Char*)");
+    void MethodResponseParser::endElement(const XML_Char *name)
+    {
+        if (!testEndElement(name))
+            ValueParser::testEndElement(name);
+    }
 
-  if (states.size() <= 1)
-    throw RuntimeException(ApplicationError, "abnormal program behaviour: MethodResponseParser::testEndElement() had no states left");
 
-  std::auto_ptr<ValueState> curr(getTopValueState());
-  states.pop();
-  ValueState *on_top = getTopValueState();
+    bool MethodResponseParser::testEndElement(const XML_Char *name)
+    {
+        ULXR_TRACE("MethodResponseParser::testEndElement(const XML_Char*)");
 
-  switch(curr->getParserState() )
-  {
-    case eMethodResponse:
-      setComplete(true);
-      assertEndElement(name, "methodResponse");
-      on_top->takeValue (curr->getValue());
-      if (on_top->getValue() != 0)
-        method_value = *on_top->getValue();
-    break;
+        if (states.size() <= 1)
+            throw RuntimeException(ApplicationError, "abnormal program behaviour: MethodResponseParser::testEndElement() had no states left");
 
-    case eFault:
-      assertEndElement(name, "fault");
-      on_top->takeValue (curr->getValue());
-    break;
+        std::auto_ptr<ValueState> curr(getTopValueState());
+        states.pop();
+        ValueState *on_top = getTopValueState();
 
-    case eParams:
-      assertEndElement(name, "params");
-      on_top->takeValue (curr->getValue());
-    break;
+        switch(curr->getParserState() )
+        {
+        case eMethodResponse:
+            setComplete(true);
+            assertEndElement(name, "methodResponse");
+            on_top->takeValue (curr->getValue());
+            if (on_top->getValue() != 0)
+                method_value = *on_top->getValue();
+            break;
 
-    case eParam:
-      assertEndElement(name, "param");
-      on_top->takeValue (curr->getValue());
-    break;
+        case eFault:
+            assertEndElement(name, "fault");
+            on_top->takeValue (curr->getValue());
+            break;
 
-    default:
-      states.push(curr.release());   // put back, someone else will process
-      return false;
-  }
+        case eParams:
+            assertEndElement(name, "params");
+            on_top->takeValue (curr->getValue());
+            break;
 
-  return true;
-}
+        case eParam:
+            assertEndElement(name, "param");
+            on_top->takeValue (curr->getValue());
+            break;
+
+        default:
+            states.push(curr.release());   // put back, someone else will process
+            return false;
+        }
+
+        return true;
+    }
 
 
 }  // namespace ulxr

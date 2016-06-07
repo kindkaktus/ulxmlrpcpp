@@ -42,100 +42,100 @@
 namespace ulxr {
 
 
- MethodResponse::MethodResponse()
-  : wasOk(true)
-{
-}
-
-
- MethodResponse::MethodResponse (const Void & /*val*/)
-  : wasOk(true)
-{
-}
-
-
- MethodResponse::MethodResponse(int fval, const std::string &fstr)
-
-{
-  setFault(fval, fstr);
-}
-
-
- MethodResponse::MethodResponse (const Value &val)
-{
-  setResult (val);
-}
-
-
- MethodResponse::~MethodResponse()
-{
-}
-
-
-bool MethodResponse::isOK() const
-{
-  return wasOk;
-}
-
-
-void MethodResponse::setFault(int fval, const std::string &fstr)
-{
-  ULXR_TRACE("setFault");
-  wasOk = false;
-  Struct st;
-  st.addMember("faultCode", Integer(fval));
-  st.addMember("faultString", RpcString(fstr));
-  respval = st;
-}
-
-
-void MethodResponse::setResult (const Value &val)
-{
-  ULXR_TRACE("setResult");
-  wasOk = true;
-  respval = val;
-}
-
-
-const Value& MethodResponse::getResult() const
-{
-  return respval;
-}
-
-
-std::string MethodResponse::getSignature(bool deep) const
-{
-  return respval.getSignature(deep);
-}
-
-
-std::string MethodResponse::getXml(int indent) const
-{
-  std::string ind = getXmlIndent(indent);
-  std::string ind1 = getXmlIndent(indent+1);
-  std::string ind2 = getXmlIndent(indent+2);
-  std::string s = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" + getXmlLinefeed();
-  s += ind + "<methodResponse>" + getXmlLinefeed();
-  if (wasOk)
-  {
-    s += ind1 + "<params>" + getXmlLinefeed();
-    if (!respval.isVoid())
+    MethodResponse::MethodResponse()
+        : wasOk(true)
     {
-      s += ind2 + "<param>" + getXmlLinefeed();
-      s += respval.getXml(indent+3) + getXmlLinefeed();
-      s += ind2 + "</param>" + getXmlLinefeed();
     }
-    s += ind1 + "</params>" + getXmlLinefeed();
-  }
-  else
-  {
-    s += ind1 + "<fault>" + getXmlLinefeed();
-    s += respval.getXml(indent+2) +  getXmlLinefeed();
-    s += ind1 + "</fault>" + getXmlLinefeed();
-  }
-  s += ind + "</methodResponse>";
-  return s;
-}
+
+
+    MethodResponse::MethodResponse (const Void & /*val*/)
+        : wasOk(true)
+    {
+    }
+
+
+    MethodResponse::MethodResponse(int fval, const std::string &fstr)
+
+    {
+        setFault(fval, fstr);
+    }
+
+
+    MethodResponse::MethodResponse (const Value &val)
+    {
+        setResult (val);
+    }
+
+
+    MethodResponse::~MethodResponse()
+    {
+    }
+
+
+    bool MethodResponse::isOK() const
+    {
+        return wasOk;
+    }
+
+
+    void MethodResponse::setFault(int fval, const std::string &fstr)
+    {
+        ULXR_TRACE("setFault");
+        wasOk = false;
+        Struct st;
+        st.addMember("faultCode", Integer(fval));
+        st.addMember("faultString", RpcString(fstr));
+        respval = st;
+    }
+
+
+    void MethodResponse::setResult (const Value &val)
+    {
+        ULXR_TRACE("setResult");
+        wasOk = true;
+        respval = val;
+    }
+
+
+    const Value& MethodResponse::getResult() const
+    {
+        return respval;
+    }
+
+
+    std::string MethodResponse::getSignature(bool deep) const
+    {
+        return respval.getSignature(deep);
+    }
+
+
+    std::string MethodResponse::getXml(int indent) const
+    {
+        std::string ind = getXmlIndent(indent);
+        std::string ind1 = getXmlIndent(indent+1);
+        std::string ind2 = getXmlIndent(indent+2);
+        std::string s = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" + getXmlLinefeed();
+        s += ind + "<methodResponse>" + getXmlLinefeed();
+        if (wasOk)
+        {
+            s += ind1 + "<params>" + getXmlLinefeed();
+            if (!respval.isVoid())
+            {
+                s += ind2 + "<param>" + getXmlLinefeed();
+                s += respval.getXml(indent+3) + getXmlLinefeed();
+                s += ind2 + "</param>" + getXmlLinefeed();
+            }
+            s += ind1 + "</params>" + getXmlLinefeed();
+        }
+        else
+        {
+            s += ind1 + "<fault>" + getXmlLinefeed();
+            s += respval.getXml(indent+2) +  getXmlLinefeed();
+            s += ind1 + "</fault>" + getXmlLinefeed();
+        }
+        s += ind + "</methodResponse>";
+        return s;
+    }
 
 
 

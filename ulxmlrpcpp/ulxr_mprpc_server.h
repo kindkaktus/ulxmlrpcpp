@@ -44,185 +44,185 @@
 namespace ulxr {
 
 
-class  MultiProcessRpcServerError : public std::exception
-{
-	std::string _what;
-public:
-	MultiProcessRpcServerError(const std::string& what_arg);
-	~MultiProcessRpcServerError() throw();
-	const char* what () const throw();
-};
+    class  MultiProcessRpcServerError : public std::exception
+    {
+        std::string _what;
+    public:
+        MultiProcessRpcServerError(const std::string& what_arg);
+        ~MultiProcessRpcServerError() throw();
+        const char* what () const throw();
+    };
 
- /**
-  *  @brief multi process handler for RPC requests.
-  */
-
-class  MultiProcessRpcServer
-{
-public:
-
-  /**
-    * @brief Constructs rpc server with process-based request handling
-   	*
-    * @param poProtocol 	Protocol object
-    * @param aNumProcesses   number of processes
-	*
-    */
-    MultiProcessRpcServer(ulxr::Protocol* poProtocol, size_t aNumProcesses);
-
-
-  /** @brief Destructs the rpc server.
-   *
-   *  Destructs the rpc server.
-   *  All handlers will be forced to stop
-   *
-   */
-	virtual ~MultiProcessRpcServer();
-	
     /**
-      Start serving. 
-      After the function returns the protocol's connection is not usable for serving any more. 
-    */
-    virtual void start();
-    
-    virtual void terminateAllHandlers();
-    // @normally should never return unless the signal is sent
-	virtual void waitForAllHandlersFinish();       
+     *  @brief multi process handler for RPC requests.
+     */
 
-  	std::vector<pid_t> getHandlers() const;
-	
- /** Processes a call after it has been recieved and before it is dispatched.
-   * @param  aCall   last received call
-   * @param  aConnectionProtocol   current connection   
-   */
-   virtual void preProcessCall(MethodCall & aCall, const Protocol *aConnectionProtocol = NULL);
+    class  MultiProcessRpcServer
+    {
+    public:
 
- /** Processes a method response before it is sent back.
-   * @param  resp   response to send back
-   */
-   virtual void preProcessResponse(MethodResponse &resp);	
+        /**
+          * @brief Constructs rpc server with process-based request handling
+         	*
+          * @param poProtocol 	Protocol object
+          * @param aNumProcesses   number of processes
+        *
+          */
+        MultiProcessRpcServer(ulxr::Protocol* poProtocol, size_t aNumProcesses);
 
-	
-	
- /** Adds a user defined (static) method to the dispatcher.
-   * You access a remote method by sending the "official" name. Sometimes
-   * a method accepts different parameter sets (overloading in C++).
-   * In this case you add the according signature. Finally you can
-   * add a description to show the usage of this method.
-   * @param  adr            the pointer to the implementation of the method
-   * @param  ret_signature  the signature of the return value
-   * @param  name           the name of the method
-   * @param  signature      the signature of the parameters
-   * @param  help           short usage description
-   */
-   void addMethod (MethodAdder::StaticMethodCall_t adr,
-                   const std::string &ret_signature,
-                   const std::string &name,
-                   const std::string &signature,
-                   const std::string &help = "");
 
- /** Adds a user defined (dynamic) method to the dispatcher.
-   * You access a remote method by sending the "official" name. Sometimes
-   * a method accepts different parameter sets (overloading in C++).
-   * In this case you add the according signature. Finally you can
-   * add a description to show the usage of this method.
-   * @param  wrapper        the pointer to the wrapper to the method.
-   *                        Important: Dispatcher owns now and deletes this wrapper object!
-   * @param  ret_signature  the signature of the return value
-   * @param  name           the name of the method
-   * @param  signature      the signature of the parameters
-   * @param  help           short usage description
-   */
-   void addMethod (MethodAdder::DynamicMethodCall_t wrapper,
-                   const std::string &ret_signature,
-                   const std::string &name,
-                   const std::string &signature,
-                   const std::string &help = "");
+        /** @brief Destructs the rpc server.
+         *
+         *  Destructs the rpc server.
+         *  All handlers will be forced to stop
+         *
+         */
+        virtual ~MultiProcessRpcServer();
 
- /** Adds a system internal method to the dispatcher.
-   * You access a remote method by sending the "official" name. Sometimes
-   * a method accepts different parameter sets (overloading in C++).
-   * In this case you add the according signature. Finally you can
-   * add a description to show the usage of this method.
-   * @param  adr            the pointer to the implementation of the method
-   * @param  ret_signature  the signature of the return value
-   * @param  name           the name of the method
-   * @param  signature      the signature of the parameters
-   * @param  help           short usage description
-   */
-   void addMethod (MethodAdder::SystemMethodCall_t adr,
-                   const std::string &ret_signature,
-                   const std::string &name,
-                   const std::string &signature,
-                   const std::string &help = "");
+        /**
+          Start serving.
+          After the function returns the protocol's connection is not usable for serving any more.
+        */
+        virtual void start();
 
- /** Adds a user defined (static) method to the dispatcher.
-   * You access a remote method by sending the "official" name. Sometimes
-   * a method accepts different parameter sets (overloading in C++).
-   * In this case you add the according signature. Finally you can
-   * add a description to show the usage of this method.
-   * @param  adr            the pointer to the implementation of the method
-   * @param  ret_signature  the signature of the return value
-   * @param  name           the name of the method
-   * @param  signature      the signature of the parameters
-   * @param  help           short usage description
-   */
-   void addMethod (MethodAdder::StaticMethodCall_t adr,
-                   const Signature &ret_signature,
-                   const std::string &name,
-                   const Signature &signature,
-                   const std::string &help = "");
+        virtual void terminateAllHandlers();
+        // @normally should never return unless the signal is sent
+        virtual void waitForAllHandlersFinish();
 
- /** Adds a user defined (dynamic) method to the dispatcher.
-   * You access a remote method by sending the "official" name. Sometimes
-   * a method accepts different parameter sets (overloading in C++).
-   * In this case you add the according signature. Finally you can
-   * add a description to show the usage of this method.
-   * @param  wrapper        the pointer to the wrapper to the method.
-   *                        Important: Dispatcher owns now and deletes this wrapper object!
-   * @param  ret_signature  the signature of the return value
-   * @param  name           the name of the method
-   * @param  signature      the signature of the parameters
-   * @param  help           short usage description
-   */
-   void addMethod (MethodAdder::DynamicMethodCall_t wrapper,
-                   const Signature &ret_signature,
-                   const std::string &name,
-                   const Signature &signature,
-                   const std::string &help = "");
+        std::vector<pid_t> getHandlers() const;
 
- /** Adds a system internal method to the dispatcher.
-   * You access a remote method by sending the "official" name. Sometimes
-   * a method accepts different parameter sets (overloading in C++).
-   * In this case you add the according signature. Finally you can
-   * add a description to show the usage of this method.
-   * @param  adr            the pointer to the implementation of the method
-   * @param  ret_signature  the signature of the return value
-   * @param  name           the name of the method
-   * @param  signature      the signature of the parameters
-   * @param  help           short usage description
-   */
-   void addMethod (MethodAdder::SystemMethodCall_t adr,
-                   const Signature &ret_signature,
-                   const std::string &name,
-                   const Signature &signature,
-                   const std::string &help = "");
+        /** Processes a call after it has been recieved and before it is dispatched.
+          * @param  aCall   last received call
+          * @param  aConnectionProtocol   current connection
+          */
+        virtual void preProcessCall(MethodCall & aCall, const Protocol *aConnectionProtocol = NULL);
 
- /** Removes a method if available
-   * @param name   method name
-   */
-   void removeMethod(const std::string &name);
- private:
-   MultiProcessRpcServer(const MultiProcessRpcServer&);
-   MultiProcessRpcServer& operator=(const MultiProcessRpcServer&);
-   
-   void startChildLoop();
+        /** Processes a method response before it is sent back.
+          * @param  resp   response to send back
+          */
+        virtual void preProcessResponse(MethodResponse &resp);
 
-private:
-	ulxr::Dispatcher*	    theDispatcher;
-	const size_t            theNumProcesses;
-	std::vector<pid_t>	    theProcessPool;	
-};
+
+
+        /** Adds a user defined (static) method to the dispatcher.
+          * You access a remote method by sending the "official" name. Sometimes
+          * a method accepts different parameter sets (overloading in C++).
+          * In this case you add the according signature. Finally you can
+          * add a description to show the usage of this method.
+          * @param  adr            the pointer to the implementation of the method
+          * @param  ret_signature  the signature of the return value
+          * @param  name           the name of the method
+          * @param  signature      the signature of the parameters
+          * @param  help           short usage description
+          */
+        void addMethod (MethodAdder::StaticMethodCall_t adr,
+                        const std::string &ret_signature,
+                        const std::string &name,
+                        const std::string &signature,
+                        const std::string &help = "");
+
+        /** Adds a user defined (dynamic) method to the dispatcher.
+          * You access a remote method by sending the "official" name. Sometimes
+          * a method accepts different parameter sets (overloading in C++).
+          * In this case you add the according signature. Finally you can
+          * add a description to show the usage of this method.
+          * @param  wrapper        the pointer to the wrapper to the method.
+          *                        Important: Dispatcher owns now and deletes this wrapper object!
+          * @param  ret_signature  the signature of the return value
+          * @param  name           the name of the method
+          * @param  signature      the signature of the parameters
+          * @param  help           short usage description
+          */
+        void addMethod (MethodAdder::DynamicMethodCall_t wrapper,
+                        const std::string &ret_signature,
+                        const std::string &name,
+                        const std::string &signature,
+                        const std::string &help = "");
+
+        /** Adds a system internal method to the dispatcher.
+          * You access a remote method by sending the "official" name. Sometimes
+          * a method accepts different parameter sets (overloading in C++).
+          * In this case you add the according signature. Finally you can
+          * add a description to show the usage of this method.
+          * @param  adr            the pointer to the implementation of the method
+          * @param  ret_signature  the signature of the return value
+          * @param  name           the name of the method
+          * @param  signature      the signature of the parameters
+          * @param  help           short usage description
+          */
+        void addMethod (MethodAdder::SystemMethodCall_t adr,
+                        const std::string &ret_signature,
+                        const std::string &name,
+                        const std::string &signature,
+                        const std::string &help = "");
+
+        /** Adds a user defined (static) method to the dispatcher.
+          * You access a remote method by sending the "official" name. Sometimes
+          * a method accepts different parameter sets (overloading in C++).
+          * In this case you add the according signature. Finally you can
+          * add a description to show the usage of this method.
+          * @param  adr            the pointer to the implementation of the method
+          * @param  ret_signature  the signature of the return value
+          * @param  name           the name of the method
+          * @param  signature      the signature of the parameters
+          * @param  help           short usage description
+          */
+        void addMethod (MethodAdder::StaticMethodCall_t adr,
+                        const Signature &ret_signature,
+                        const std::string &name,
+                        const Signature &signature,
+                        const std::string &help = "");
+
+        /** Adds a user defined (dynamic) method to the dispatcher.
+          * You access a remote method by sending the "official" name. Sometimes
+          * a method accepts different parameter sets (overloading in C++).
+          * In this case you add the according signature. Finally you can
+          * add a description to show the usage of this method.
+          * @param  wrapper        the pointer to the wrapper to the method.
+          *                        Important: Dispatcher owns now and deletes this wrapper object!
+          * @param  ret_signature  the signature of the return value
+          * @param  name           the name of the method
+          * @param  signature      the signature of the parameters
+          * @param  help           short usage description
+          */
+        void addMethod (MethodAdder::DynamicMethodCall_t wrapper,
+                        const Signature &ret_signature,
+                        const std::string &name,
+                        const Signature &signature,
+                        const std::string &help = "");
+
+        /** Adds a system internal method to the dispatcher.
+          * You access a remote method by sending the "official" name. Sometimes
+          * a method accepts different parameter sets (overloading in C++).
+          * In this case you add the according signature. Finally you can
+          * add a description to show the usage of this method.
+          * @param  adr            the pointer to the implementation of the method
+          * @param  ret_signature  the signature of the return value
+          * @param  name           the name of the method
+          * @param  signature      the signature of the parameters
+          * @param  help           short usage description
+          */
+        void addMethod (MethodAdder::SystemMethodCall_t adr,
+                        const Signature &ret_signature,
+                        const std::string &name,
+                        const Signature &signature,
+                        const std::string &help = "");
+
+        /** Removes a method if available
+          * @param name   method name
+          */
+        void removeMethod(const std::string &name);
+    private:
+        MultiProcessRpcServer(const MultiProcessRpcServer&);
+        MultiProcessRpcServer& operator=(const MultiProcessRpcServer&);
+
+        void startChildLoop();
+
+    private:
+        ulxr::Dispatcher*	    theDispatcher;
+        const size_t            theNumProcesses;
+        std::vector<pid_t>	    theProcessPool;
+    };
 
 
 }

@@ -40,73 +40,73 @@
 namespace ulxr {
 
 
-class Protocol;
-class Connection;
+    class Protocol;
+    class Connection;
 
-/** XML RPC Requester (rpc client).
-  * The requester takes the MethodCall, converts it to xml and sends
-  * it over the connection. It then waits for the response which must
-  * be further processes by the caller.
-  * @ingroup grp_ulxr_rpc
-  */
-class  Requester
-{
- public:
+    /** XML RPC Requester (rpc client).
+      * The requester takes the MethodCall, converts it to xml and sends
+      * it over the connection. It then waits for the response which must
+      * be further processes by the caller.
+      * @ingroup grp_ulxr_rpc
+      */
+    class  Requester
+    {
+    public:
 
- /** Constructs a requester.
-   * @param  prot        pointer to an existing Connection
-   */
-   Requester(Protocol* prot);
+        /** Constructs a requester.
+          * @param  prot        pointer to an existing Connection
+          */
+        Requester(Protocol* prot);
 
-   virtual ~Requester();
+        virtual ~Requester();
 
- /** Performs a virtual call to the remote method
-   * "behind" the connection.
-   * @param   call      the data for the call
-   * @param   resource  resource for rpc on remote host
-   * @return the methods response
-   */
-   MethodResponse call (const MethodCall& call,
-                        const std::string &resource);
+        /** Performs a virtual call to the remote method
+          * "behind" the connection.
+          * @param   call      the data for the call
+          * @param   resource  resource for rpc on remote host
+          * @return the methods response
+          */
+        MethodResponse call (const MethodCall& call,
+                             const std::string &resource);
 
- /** Performs a virtual call to the remote method
-   * "behind" the connection.
-   * @param   call      the data for the call
-   * @param   resource  resource for rpc on remote host
-   * @param   user      user name
-   * @param   pass      password
-   * @return the methods response
-   */
-   MethodResponse call (const MethodCall& call,
-                        const std::string &resource,
-                        const std::string &user,
-                        const std::string &pass);
-
-
- /** Waits for the response from the remote server.
-   * @param  conn   connection to wait for data
-   * @return methode response
-   */
-   static MethodResponse waitForResponse(Protocol *conn);
+        /** Performs a virtual call to the remote method
+          * "behind" the connection.
+          * @param   call      the data for the call
+          * @param   resource  resource for rpc on remote host
+          * @param   user      user name
+          * @param   pass      password
+          * @return the methods response
+          */
+        MethodResponse call (const MethodCall& call,
+                             const std::string &resource,
+                             const std::string &user,
+                             const std::string &pass);
 
 
- protected:
- /** Sends the call data to the remote method.
-   * @param   call      the data for the call
-   * @param   resource  resource for rpc on remote host
-   */
-   void send_call(const MethodCall& call,
-                  const std::string &resource);
-
- /** Waits for the response from the remote server.
-   * @return methode response
-   */
-   MethodResponse waitForResponse();
+        /** Waits for the response from the remote server.
+          * @param  conn   connection to wait for data
+          * @return methode response
+          */
+        static MethodResponse waitForResponse(Protocol *conn);
 
 
- private:
-   Protocol          *protocol;
-};
+    protected:
+        /** Sends the call data to the remote method.
+          * @param   call      the data for the call
+          * @param   resource  resource for rpc on remote host
+          */
+        void send_call(const MethodCall& call,
+                       const std::string &resource);
+
+        /** Waits for the response from the remote server.
+          * @return methode response
+          */
+        MethodResponse waitForResponse();
+
+
+    private:
+        Protocol          *protocol;
+    };
 
 
 }  // namespace ulxr

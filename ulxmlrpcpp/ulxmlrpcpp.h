@@ -41,17 +41,20 @@
 #define ULXR_VERSION   "1.7.5p1"
 #define ULXMLRPCPP_VERSION  ULXR_VERSION
 
+// #define ULXR_DEBUG_OUTPUT
+// #define ULXR_SHOW_TRACE
+
 /* debugging: show http header contents. */
-/* #undef ULXR_SHOW_HTTP */
+// #define ULXR_SHOW_HTTP
 
 /* debugging: show each read characters. */
-/* #undef ULXR_SHOW_READ */
+// #define ULXR_SHOW_READ
 
 /* debugging: show each written character. */
-/* #undef ULXR_SHOW_WRITE */
+// #define ULXR_SHOW_WRITE
 
 /* debugging: show xml data. */
-/* #undef ULXR_SHOW_XML */
+// #define ULXR_SHOW_XML
 
 
 #include <string>
@@ -63,9 +66,11 @@
 #include <sstream>
 #include <sys/types.h>
 #include <unistd.h>
+#include <syslog.h>
+#include <sstream>
 
-#  define ULXR_DTRACE(x)     { std::cerr << __FILE__ << "," << __LINE__ << ": " <<  x << "\n"; }
-#  define ULXR_DOUT(x)      { std::cerr << x  << "\n"; }
+#  define ULXR_DTRACE(x)     { std::stringstream ss; ss << x; syslog(LOG_DEBUG, "%s", ss.str().c_str()); }// std::cerr << __FILE__ << "," << __LINE__ << ": " <<  x << "\n"; }
+#  define ULXR_DOUT(x)      { std::stringstream ss; ss << x; syslog(LOG_DEBUG, "%s", ss.str().c_str()); } // std::cerr << x  << "\n"; }
 #  define ULXR_DWRITE(buf, n) { ::write(2, buf, n); std::cerr << "\n";}
 
 #else
@@ -123,10 +128,10 @@
 //
 
 #define ULXR_RECV_BUFFER_SIZE  50    // keep rather small, otherwise two messages
-                                     // might be read as a single block
+// might be read as a single block
 #define ULXR_SEND_BUFFER_SIZE  2000
 
-namespace ulxr 
+namespace ulxr
 {
 
     // officially reserved -32768 .. -32000
@@ -203,19 +208,21 @@ namespace ulxr
     void makeUpper(std::string &str);
 
     std::string toString (int aNumber);
+    std::string toString (long aNumber);
+    std::string toString (size_t aNumber);
     std::string toString (unsigned int aNumber);
-    
+
     template <class T>
     std::string vec2Str(const std::vector<T>& aVec)
     {
         return std::string(aVec.begin(), aVec.end());
     }
-    
+
     template <class T>
     std::vector<T> str2Vec(const std::string& aStr)
     {
         return std::vector<T>(aStr.begin(), aStr.end());
-    } 
+    }
 
 
     /** Returns a readable string about the cause of the last system error.
@@ -242,7 +249,7 @@ namespace ulxr
     * @return string with \c indent spaces
     */
     std::string getXmlIndent(unsigned indent);
-  
+
 } // namespace ulxr
 
 

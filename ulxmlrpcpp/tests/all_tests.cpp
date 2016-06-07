@@ -18,12 +18,12 @@
 
 static bool haveOption(int argc, char **argv, const char *name)
 {
-  for (int i = 0; i < argc; ++i)
-  {
-    if (strcmp(argv[i], name) == 0)
-      return true;
-  }
-  return false;
+    for (int i = 0; i < argc; ++i)
+    {
+        if (strcmp(argv[i], name) == 0)
+            return true;
+    }
+    return false;
 }
 
 void mysleep(unsigned int aMsec)
@@ -55,7 +55,7 @@ struct MyStruct
 };
 
 template <typename DestContainerT>
-    DestContainerT deserializeIntArray(const ulxr::Array& anArray)
+DestContainerT deserializeIntArray(const ulxr::Array& anArray)
 {
     DestContainerT myRetVal;
     for (size_t i=0; i< anArray.size(); ++i)
@@ -83,7 +83,7 @@ MyStruct deserializeMyStruct(const ulxr::Struct& aStruct)
 }
 
 template <typename SrcContainerT>
-    ulxr::Array serializeIntContainer(const SrcContainerT& aContainer)
+ulxr::Array serializeIntContainer(const SrcContainerT& aContainer)
 {
     ulxr::Array myRetVal;
     for (typename SrcContainerT::const_iterator it = aContainer.begin(), end = aContainer.end(); it != end; ++it)
@@ -114,38 +114,38 @@ ulxr::Struct serializeMyStruct(const MyStruct& aMyStruct)
 
 class TestWorker
 {
-    public:
+public:
 
-        TestWorker ()
-        {}
-        ulxr::MethodResponse echo(const ulxr::MethodCall &args)
-        {
-            // args: int, boolean, double, date, date, string, base64, array of int, struct {int, array of struct {string, bool} }
-            int myIntArg = ulxr::Integer(args.getParam(0)).getInteger();
-            bool myBoolArg = ulxr::Boolean(args.getParam(1)).getBoolean();
-            double myDoubleArg = ulxr::Double(args.getParam(2)).getDouble();
-            std::string myDateArg1 = ulxr::DateTime(args.getParam(3)).getDateTime();
-            std::string myDateArg2 = ulxr::DateTime(args.getParam(4)).getDateTime();
-            std::string myStrArg = ulxr::RpcString(args.getParam(5)).getString();
-            std::string myB64Arg = ulxr::Base64(args.getParam(6)).getString();
-            std::vector<int> myArrIntArg = deserializeIntArray<std::vector<int> >(ulxr::Array(args.getParam(7)));
-            MyStruct myStructArg = deserializeMyStruct(ulxr::Struct(args.getParam(8)));
+    TestWorker ()
+    {}
+    ulxr::MethodResponse echo(const ulxr::MethodCall &args)
+    {
+        // args: int, boolean, double, date, date, string, base64, array of int, struct {int, array of struct {string, bool} }
+        int myIntArg = ulxr::Integer(args.getParam(0)).getInteger();
+        bool myBoolArg = ulxr::Boolean(args.getParam(1)).getBoolean();
+        double myDoubleArg = ulxr::Double(args.getParam(2)).getDouble();
+        std::string myDateArg1 = ulxr::DateTime(args.getParam(3)).getDateTime();
+        std::string myDateArg2 = ulxr::DateTime(args.getParam(4)).getDateTime();
+        std::string myStrArg = ulxr::RpcString(args.getParam(5)).getString();
+        std::string myB64Arg = ulxr::Base64(args.getParam(6)).getString();
+        std::vector<int> myArrIntArg = deserializeIntArray<std::vector<int> >(ulxr::Array(args.getParam(7)));
+        MyStruct myStructArg = deserializeMyStruct(ulxr::Struct(args.getParam(8)));
 
-            ulxr::MethodResponse resp;
-            ulxr::Struct myRetVal;
-            myRetVal << ulxr::make_member("arg1", ulxr::Integer(myIntArg))
-                     << ulxr::make_member("arg2", ulxr::Boolean(myBoolArg))
-                     << ulxr::make_member("arg3", ulxr::Double(myDoubleArg))
-                     << ulxr::make_member("arg4", ulxr::DateTime(myDateArg1))
-                     << ulxr::make_member("arg5", ulxr::DateTime(myDateArg2))
-                     << ulxr::make_member("arg6", ulxr::RpcString(myStrArg))
-                     << ulxr::make_member("arg7", ulxr::Base64(myB64Arg))
-                     << ulxr::make_member("arg8", serializeIntContainer<std::vector<int> >(myArrIntArg))
-                     << ulxr::make_member("arg9", serializeMyStruct(myStructArg));
+        ulxr::MethodResponse resp;
+        ulxr::Struct myRetVal;
+        myRetVal << ulxr::make_member("arg1", ulxr::Integer(myIntArg))
+                 << ulxr::make_member("arg2", ulxr::Boolean(myBoolArg))
+                 << ulxr::make_member("arg3", ulxr::Double(myDoubleArg))
+                 << ulxr::make_member("arg4", ulxr::DateTime(myDateArg1))
+                 << ulxr::make_member("arg5", ulxr::DateTime(myDateArg2))
+                 << ulxr::make_member("arg6", ulxr::RpcString(myStrArg))
+                 << ulxr::make_member("arg7", ulxr::Base64(myB64Arg))
+                 << ulxr::make_member("arg8", serializeIntContainer<std::vector<int> >(myArrIntArg))
+                 << ulxr::make_member("arg9", serializeMyStruct(myStructArg));
 
-            resp.setResult(myRetVal);
-            return resp;
-        }
+        resp.setResult(myRetVal);
+        return resp;
+    }
 };
 
 //@return call success flag
@@ -200,7 +200,7 @@ void callEcho(ulxr::Requester& aClient)
 struct ExecTime
 {
     ExecTime(size_t aNumCalls, size_t aNoSsl, size_t anSsl)
-    : numCalls(aNumCalls), noSsl(aNoSsl), ssl(anSsl)
+        : numCalls(aNumCalls), noSsl(aNoSsl), ssl(anSsl)
     {}
 
     size_t get(bool anIsSsl) const
@@ -262,9 +262,9 @@ int main(int argc, char **argv)
         TestWorker worker;
 
         server.addMethod(ulxr::make_method(worker, &TestWorker::echo),
-                ulxr::Signature(ulxr::Struct()),
-                "echo",
-                ulxr::Signature() << ulxr::Integer() << ulxr::Boolean() << ulxr::Double() << ulxr::DateTime() << ulxr::DateTime() << ulxr::RpcString() << ulxr::Base64() << ulxr::Array() << ulxr::Struct());
+                         ulxr::Signature(ulxr::Struct()),
+                         "echo",
+                         ulxr::Signature() << ulxr::Integer() << ulxr::Boolean() << ulxr::Double() << ulxr::DateTime() << ulxr::DateTime() << ulxr::RpcString() << ulxr::Base64() << ulxr::Array() << ulxr::Struct());
 
         server.start();
         mysleep(500); // wait for the service to start

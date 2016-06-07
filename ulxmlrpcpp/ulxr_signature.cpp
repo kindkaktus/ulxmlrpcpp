@@ -37,63 +37,63 @@
 namespace ulxr {
 
 
- Signature::Signature()
-{
-}
+    Signature::Signature()
+    {
+    }
 
 
- Signature::Signature(const Void & /* v */)
-{
-}
+    Signature::Signature(const Void & /* v */)
+    {
+    }
 
 
- Signature::Signature(const std::string &s)
-{
-  sig = s;
-}
+    Signature::Signature(const std::string &s)
+    {
+        sig = s;
+    }
 
 
- Signature::Signature(const ValueBase &v)
-{
-  sig = v.getSignature();
-}
+    Signature::Signature(const ValueBase &v)
+    {
+        sig = v.getSignature();
+    }
 
 
-Signature & Signature::addParam(const Value &v)
-{
-  if (sig.length() != 0)
-    sig += ",";
-  sig += v.getSignature();
-  return *this;
-}
+    Signature & Signature::addParam(const Value &v)
+    {
+        if (sig.length() != 0)
+            sig += ",";
+        sig += v.getSignature();
+        return *this;
+    }
 
 
-Signature & Signature::addParam(const std::string &s)
-{
-  if (sig.length() != 0)
-    sig += ",";
-  sig += s;
-  return *this;
-}
+    Signature & Signature::addParam(const std::string &s)
+    {
+        if (sig.length() != 0)
+            sig += ",";
+        sig += s;
+        return *this;
+    }
 
 
-std::string Signature::getString() const
-{
-  return sig;
-}
+    std::string Signature::getString() const
+    {
+        return sig;
+    }
 
 
-Signature & Signature::operator<<(const Value &v)
-{
-  addParam(v);
-  return *this;
-}
+    Signature & Signature::operator<<(const Value &v)
+    {
+        addParam(v);
+        return *this;
+    }
 
 
-Signature & Signature::operator<<(const std::string &s)
-{
-  addParam(s);
-  return *this;
-}
+    Signature & Signature::operator<<(const std::string &s)
+    {
+        addParam(s);
+        return *this;
+    }
 
 }  // namespace ulxr

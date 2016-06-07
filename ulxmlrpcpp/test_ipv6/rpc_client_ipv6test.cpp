@@ -19,12 +19,12 @@
 
 static bool haveOption(int argc, char **argv, const char *name)
 {
-  for (int i = 0; i < argc; ++i)
-  {
-    if (strcmp(argv[i], name) == 0)
-      return true;
-  }
-  return false;
+    for (int i = 0; i < argc; ++i)
+    {
+        if (strcmp(argv[i], name) == 0)
+            return true;
+    }
+    return false;
 }
 
 int main(int argc, char **argv)
@@ -47,14 +47,14 @@ int main(int argc, char **argv)
             sec = "secured";
 
         std::cout << "Requesting " << sec << " rpc calls at "
-            << host << ":" << port << std::endl;
+                  << host << ":" << port << std::endl;
 
         std::auto_ptr<ulxr::TcpIpConnection> conn;
         if (secure)
             conn.reset(new ulxr::SSLConnection (host, port));
         else
-            conn.reset(new ulxr::TcpIpConnection (host, port));            
-            
+            conn.reset(new ulxr::TcpIpConnection (host, port));
+
         conn->setTcpNoDelay(true);
         ulxr::HttpProtocol prot(conn.get());
         ulxr::Requester client(&prot);
@@ -123,8 +123,8 @@ int main(int argc, char **argv)
         std::cout << "\n" << numCalls << " remote calls to 'mergeArrays' performed\n";
         std::cout << "Time: " << totalsecs << " sec, "<< (totalsecs?numCalls/totalsecs:0) << " calls/sec\n";
         std::cout << "Transferred payload: " << myPayloadBytesTransferred/1024 << " KB, " << (totalsecs?myPayloadBytesTransferred/totalsecs:0)/1024<< " KB/sec\n";
-        
-        
+
+
         // Call getCert
         //
         starttime = time(0);
@@ -135,7 +135,7 @@ int main(int argc, char **argv)
             ulxr::MethodCall getCertProxyFunc ("getCertificate");
             getCertProxyFunc.addParam(ulxr::RpcString(myCustNameArg.c_str()));
             //std::cout << "call getCert: \n";
-            //timeval startTick, endTick; 
+            //timeval startTick, endTick;
             //gettimeofday(&startTick, NULL);
             resp = client.call(getCertProxyFunc, "/RPC2");
             //gettimeofday(&endTick, NULL);

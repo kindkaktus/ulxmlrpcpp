@@ -41,66 +41,66 @@
 namespace ulxr {
 
 
-/** Base class for XML RPC parsing.
-  *
-  * IMPORTANT:
-  * The current "Value" is moved around via pointers and is not
-  * automatically destroyed. The object taking over the "Value" resp. the object
-  * storing the value somehow else must "delete" the "Value" it gets.
-  *
-  * @see ArrayState::takeValue
-  * @see MethodCallParser::testEndElement
-  * @ingroup grp_ulxr_parser
-  */
-class  ValueParser : public ValueParserBase,
-                                   public XmlParser
-{
- public:
+    /** Base class for XML RPC parsing.
+      *
+      * IMPORTANT:
+      * The current "Value" is moved around via pointers and is not
+      * automatically destroyed. The object taking over the "Value" resp. the object
+      * storing the value somehow else must "delete" the "Value" it gets.
+      *
+      * @see ArrayState::takeValue
+      * @see MethodCallParser::testEndElement
+      * @ingroup grp_ulxr_parser
+      */
+    class  ValueParser : public ValueParserBase,
+        public XmlParser
+    {
+    public:
 
- /** Constructs a parser.
-   */
-   ValueParser();
+        /** Constructs a parser.
+          */
+        ValueParser();
 
- /** Destroys the parser.
-   */
-   virtual ~ValueParser();
+        /** Destroys the parser.
+          */
+        virtual ~ValueParser();
 
- protected:
+    protected:
 
- /** Parses the current opening XML tag.
-   * Used ONLY internally as callback from expat.
-   * @param  name  the name of the current tag
-   * @param  atts  to the current attributs (unused in XML-RPC)
-   */
-   virtual void startElement(const XML_Char *name,
-                             const XML_Char **atts);
+        /** Parses the current opening XML tag.
+          * Used ONLY internally as callback from expat.
+          * @param  name  the name of the current tag
+          * @param  atts  to the current attributs (unused in XML-RPC)
+          */
+        virtual void startElement(const XML_Char *name,
+                                  const XML_Char **atts);
 
- /** Parses the current closing XML tag.
-   * Used ONLY internally as callback from expat.
-   * @param  name  the name of the current tag
-   */
-   virtual void endElement(const XML_Char* name);
+        /** Parses the current closing XML tag.
+          * Used ONLY internally as callback from expat.
+          * @param  name  the name of the current tag
+          */
+        virtual void endElement(const XML_Char* name);
 
- /** Tests if the current opening tag is to be parsed by this
-   * inheritance level or by the parent.
-   * Used ONLY internally.
-   * @param  name  the name of the current tag
-   * @param  atts  pointer to the current attributs (unused in XML-RPC)
-   */
-   bool testStartElement(const XML_Char *name, const XML_Char **atts);
+        /** Tests if the current opening tag is to be parsed by this
+          * inheritance level or by the parent.
+          * Used ONLY internally.
+          * @param  name  the name of the current tag
+          * @param  atts  pointer to the current attributs (unused in XML-RPC)
+          */
+        bool testStartElement(const XML_Char *name, const XML_Char **atts);
 
- /** Tests if the current closing tag is to be parsed by this
-   * inheritance level or by the parent.
-   * Used ONLY internally.
-   * @param  name  the name of the current tag
-   */
-   bool testEndElement(const XML_Char *name);
+        /** Tests if the current closing tag is to be parsed by this
+          * inheritance level or by the parent.
+          * Used ONLY internally.
+          * @param  name  the name of the current tag
+          */
+        bool testEndElement(const XML_Char *name);
 
- /** Gets a pointer to the topmost ValueState.
-   * @return pointer to ValueState
-   */
-   ValueState *getTopValueState() const;
-};
+        /** Gets a pointer to the topmost ValueState.
+          * @return pointer to ValueState
+          */
+        ValueState *getTopValueState() const;
+    };
 
 
 }  // namespace ulxr

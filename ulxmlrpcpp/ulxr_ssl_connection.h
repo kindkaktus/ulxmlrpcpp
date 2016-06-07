@@ -34,110 +34,114 @@
 #include <ulxmlrpcpp/ulxmlrpcpp.h>
 #include <ulxmlrpcpp/ulxr_tcpip_connection.h>
 
- // Forward declarations from OpenSSL
- struct ssl_st;
- struct ssl_ctx_st;
- typedef struct ssl_st SSL;
- typedef struct ssl_ctx_st SSL_CTX;
+// Forward declarations from OpenSSL
+struct ssl_st;
+struct ssl_ctx_st;
+typedef struct ssl_st SSL;
+typedef struct ssl_ctx_st SSL_CTX;
 
 
 namespace ulxr {
 
 
-/** Class for ssl connections between XML RPC client and server.
-  * @ingroup grp_ulxr_connection
-  */
-class  SSLConnection : public TcpIpConnection
-{
- public:
+    /** Class for ssl connections between XML RPC client and server.
+      * @ingroup grp_ulxr_connection
+      */
+    class  SSLConnection : public TcpIpConnection
+    {
+    public:
 
- /** Constructs a generic connection.
-   * The connection is not yet open after construction.
-   */
-   SSLConnection(const std::string& aRemoteHost, unsigned port, bool anAllowEcCiphers, size_t aTcpConnectionTimeout = TcpIpConnection::DefConnectionTimeout);
-   SSLConnection(const IP &aListenIp, unsigned port, bool anAllowEcCiphers);
-
-
- /** Constructs a connection.
-   * The connection is not yet open after construction.
-   */
-   virtual ~SSLConnection();
-
- /** Closes the connection.
-   */
-   virtual void close();
-
- /** Opens the connection in rpc client mode.
-   */
-   virtual void open();
-
- /** Opens the connection in rpc server mode, thus waiting for
-   * connections from clients.
-   * @param timeout the timeout value [sec] (0 - no timeout)
-   * @returns <code>true</code> when connection has been accepted
-   */
-   virtual bool accept(int timeout = 0);
+        /** Constructs a generic connection.
+          * The connection is not yet open after construction.
+          */
+        SSLConnection(const std::string& aRemoteHost, unsigned port, bool anAllowEcCiphers, size_t aTcpConnectionTimeout = TcpIpConnection::DefConnectionTimeout);
+        SSLConnection(const IP &aListenIp, unsigned port, bool anAllowEcCiphers);
 
 
- /** Returns the password.
-   * @return password
-   */
-   std::string getPassword() const;
+        /** Constructs a connection.
+          * The connection is not yet open after construction.
+          */
+        virtual ~SSLConnection();
 
- /** Sets the cryptography data.
-   * @param  password   password for the crypto files
-   * @param  certfile   name of the servers certificate file (PEM format)
-   * @param  keyfile    name of the servers private key file (PEM format)
-   */
-   void setCryptographyData (const std::string &password,
-                             const std::string &certfile,
-                             const std::string &keyfile);
+        /** Closes the connection.
+          */
+        virtual void close();
 
- protected:
+        /** Opens the connection in rpc client mode.
+          */
+        virtual void open();
 
- /** Checks if there is input data which can immediately be read.
-   * @return true: data available
-   */
-   virtual bool hasPendingInput() const;
+        /** Opens the connection in rpc server mode, thus waiting for
+          * connections from clients.
+          * @param timeout the timeout value [sec] (0 - no timeout)
+          * @returns <code>true</code> when connection has been accepted
+          */
+        virtual bool accept(int timeout = 0);
 
- private:
 
-   SSL          *theSSL;
-   SSL_CTX      *theSSL_ctx;
-   const bool theAllowEcCiphers;
+        /** Returns the password.
+          * @return password
+          */
+        std::string getPassword() const;
 
-   std::string   password;
-   std::string   keyfile;
-   std::string   certfile;
+        /** Sets the cryptography data.
+          * @param  password   password for the crypto files
+          * @param  certfile   name of the servers certificate file (PEM format)
+          * @param  keyfile    name of the servers private key file (PEM format)
+          */
+        void setCryptographyData (const std::string &password,
+                                  const std::string &certfile,
+                                  const std::string &keyfile);
 
-   static bool SSL_initialized;
+    protected:
 
- /** Create SSL object.
-   */
-   void createSSL();
+        /** Checks if there is input data which can immediately be read.
+          * @return true: data available
+          */
+        virtual bool hasPendingInput() const;
 
- /** Initialise SSL context data.
-   */
-   void initializeCTX();
+    private:
 
- /** Actually writes data to the connection.
-   * @param  buff pointer to data
-   * @param  len  valid buffer length
-   * @return  result from api write function
-   */
-   size_t virtual low_level_write(char const *buff, long len);
+        SSL          *theSSL;
+        SSL_CTX      *theSSL_ctx;
+        const bool theAllowEcCiphers;
 
- /** Reads data from the connection.
-   * @param  buff pointer to data buffer
-   * @param  len  maimum number of bytes to read into buffer
-   * @return  result from api read function
-   */
-   size_t virtual low_level_read(char *buff, long len);
+        std::string   password;
+        std::string   keyfile;
+        std::string   certfile;
 
- /** Initializes internal variables.
-   */
-   void init();
-};
+        static bool SSL_initialized;
+
+        /** Create SSL object.
+          */
+        void createSSL();
+
+        /** Initialise SSL context data.
+          */
+        void initializeCTX();
+
+        /** Actually writes data to the connection.
+          * @param  buff pointer to data
+          * @param  len  valid buffer length
+          * @return  result from api write function
+          */
+        size_t virtual low_level_write(char const *buff, long len);
+
+        /** Reads data from the connection.
+          * @param  buff pointer to data buffer
+          * @param  len  maimum number of bytes to read into buffer
+          * @return  result from api read function
+          */
+        size_t virtual low_level_read(char *buff, long len);
+
+        /** Initializes internal variables.
+          */
+        void init();
+
+        // Perform SSL handshake without blocking on top of the already existing TCP connection
+        // This way SSL connection is established
+        void handshakeNonBlocking();
+    };
 
 
 }  // namespace ulxr
