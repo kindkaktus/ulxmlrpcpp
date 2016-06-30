@@ -301,12 +301,6 @@ namespace ulxr {
         myOs << aNumber;
         return myOs.str();
     }
-    std::string toString (size_t aNumber)
-    {
-        std::ostringstream myOs;
-        myOs << aNumber;
-        return myOs.str();
-    }
     std::string toString (unsigned int aNumber)
     {
         std::ostringstream myOs;
