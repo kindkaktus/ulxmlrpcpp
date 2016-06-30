@@ -289,25 +289,13 @@ namespace ulxr {
 
     }
 
-    std::string toString (int aNumber)
+    template <class T>
+    std::string toString (T aNumber)
     {
         std::ostringstream myOs;
         myOs << aNumber;
         return myOs.str();
     }
-    std::string toString (long aNumber)
-    {
-        std::ostringstream myOs;
-        myOs << aNumber;
-        return myOs.str();
-    }
-    std::string toString (unsigned int aNumber)
-    {
-        std::ostringstream myOs;
-        myOs << aNumber;
-        return myOs.str();
-    }
-
 
     void makeLower( std::string &str)
     {
