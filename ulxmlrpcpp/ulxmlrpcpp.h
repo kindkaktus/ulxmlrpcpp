@@ -59,15 +59,14 @@
 
 #include <string>
 #include <vector>
+#include <sstream>
+#include <iostream>
 
 #if defined(ULXR_DEBUG_OUTPUT)
 
-#include <iostream>
-#include <sstream>
 #include <sys/types.h>
 #include <unistd.h>
 #include <syslog.h>
-#include <sstream>
 
 #  define ULXR_DTRACE(x)     { std::stringstream ss; ss << x; syslog(LOG_DEBUG, "%s", ss.str().c_str()); }// std::cerr << __FILE__ << "," << __LINE__ << ": " <<  x << "\n"; }
 #  define ULXR_DOUT(x)      { std::stringstream ss; ss << x; syslog(LOG_DEBUG, "%s", ss.str().c_str()); } // std::cerr << x  << "\n"; }
@@ -207,10 +206,13 @@ namespace ulxr
     */
     void makeUpper(std::string &str);
 
-    std::string toString (int aNumber);
-    std::string toString (long aNumber);
-    std::string toString (size_t aNumber);
-    std::string toString (unsigned int aNumber);
+    template <class T>
+    std::string toString (T aNumber)
+    {
+        std::ostringstream myOs;
+        myOs << aNumber;
+        return myOs.str();
+    }
 
     template <class T>
     std::string vec2Str(const std::vector<T>& aVec)
