@@ -305,9 +305,9 @@ namespace ulxr {
 
     std::string getLastErrorString(unsigned errornum)
     {
-        char errbuf[1024] = {};
-        strerror_r(errornum, errbuf, sizeof(errbuf)-1);
-        return errbuf;
+        std::stringstream ss;
+        ss << strerror(errornum) << ". Error " << errornum;
+        return ss.str();
     }
 
     namespace

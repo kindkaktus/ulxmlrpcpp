@@ -237,6 +237,12 @@ namespace ulxr {
             ipv6Sock = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
             if (ipv6Sock < 0)
                 throw ConnectionException(SystemError, "Failed to create IPv6 TCP socket : " + getErrorString(getLastError()), 500);
+
+            // set IPV6_V6ONLY flag on socket to allow binding both IPv4 and IPv6 to the same port (such as 0.0.0.0 and ::)
+            int on = 1;
+            if (::setsockopt(ipv6Sock, IPPROTO_IPV6, IPV6_V6ONLY, &on, sizeof(on))< 0)
+                throw ConnectionException(SystemError,  "Could not set IPPROTO_IPV6 flag for socket: " + getErrorString(getLastError()), 500);
+
             int sockOpt = 1;
             if (::setsockopt(ipv6Sock, SOL_SOCKET, SO_REUSEADDR, (const char*)&sockOpt, sizeof(sockOpt)) < 0)
                 throw ConnectionException(SystemError,  "Could not set reuse flag for socket: " + getErrorString(getLastError()), 500);
