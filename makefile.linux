@@ -1,10 +1,6 @@
 DEPS:=$(patsubst %,$(SRCS_DIR)/%,$(DEPS))
 
-.PHONY: all release debug lib clean test deps
-
-# @todo: make is distro-agnostic or support more distros at least
-deps:
-	apt-get install libexpat-dev
+.PHONY: all release debug lib clean test
 
 all release debug: lib
 
