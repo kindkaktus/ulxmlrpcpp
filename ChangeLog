@@ -1,7 +1,7 @@
                             ulxmlrpcpp history
                             ------------------
 
-2016-06-07   1.7.5.p2, Andrei Korostelev
+2018-09-17   1.7.5.p2, Andrei Korostelev
     - FIXED SSL handshake respects timeout passed for read/write socket operations
     - CHANGED Removed unused code
     - CHANGED Formatted source code

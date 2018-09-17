@@ -17,4 +17,31 @@ STATIC_LIB=libulxmlrpcpp.a
 OUT_DIR=lib
 TEST_DIR=tests
 
-include makefile.$(OSNAME)
+DEPS:=$(patsubst %,$(SRCS_DIR)/%,$(DEPS))
+
+.PHONY: all release debug lib clean test
+
+all release debug: lib
+
+lib: $(STATIC_LIB)
+
+test: $(STATIC_LIB) build-test run-test
+
+$(STATIC_LIB): $(OBJS)
+	mkdir -p $(OUT_DIR)
+	ar rcs $(OUT_DIR)/$@ $(OBJS)
+
+build-test:
+	cd $(SRCS_DIR)/$(TEST_DIR) && $(MAKE)
+
+run-test:
+	cd $(SRCS_DIR)/$(TEST_DIR) && ./run_all_tests.sh
+
+%.o: $(SRCS_DIR)/%.cpp $(DEPS)
+	$(CXX) -I. -I../$(OPENSSL_INCLUDE_DIR) $(CXXFLAGS) $< -o $@
+
+clean: clean-test
+	-rm -f $(OBJS) $(OUT_DIR)/$(STATIC_LIB)
+
+clean-test:
+	cd $(SRCS_DIR)/$(TEST_DIR) && $(MAKE) clean
