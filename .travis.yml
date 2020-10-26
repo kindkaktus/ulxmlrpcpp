@@ -2,3 +2,4 @@ language: cpp
 script:
   - OSNAME=linux make all
   - OSNAME=linux make test
+dist: focal
