@@ -1,5 +1,8 @@
-                            ulxmlrpcpp history
-                            ------------------
+ulxmlrpcpp history
+------------------
+
+2020-10-26 1.7.5.p3, Andrei Korostelev
+    - FIXED Compilation warning
 
 2018-09-17   1.7.5.p2, Andrei Korostelev
     - FIXED SSL handshake respects timeout passed for read/write socket operations

@@ -38,7 +38,7 @@
 #define ULXR_H
 
 #define ULXR_PACKAGE  "ulxmlrpcpp"
-#define ULXR_VERSION   "1.7.5p1"
+#define ULXR_VERSION   "1.7.5p3"
 #define ULXMLRPCPP_VERSION  ULXR_VERSION
 
 // #define ULXR_DEBUG_OUTPUT

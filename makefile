@@ -38,7 +38,7 @@ run-test:
 	cd $(SRCS_DIR)/$(TEST_DIR) && ./run_all_tests.sh
 
 %.o: $(SRCS_DIR)/%.cpp $(DEPS)
-	$(CXX) -I. -I../$(OPENSSL_INCLUDE_DIR) $(CXXFLAGS) $< -o $@
+	$(CXX) -I. $(CXXFLAGS) $< -o $@
 
 clean: clean-test
 	-rm -f $(OBJS) $(OUT_DIR)/$(STATIC_LIB)

@@ -109,10 +109,9 @@ namespace ulxr {
 
         /** Sets abort on close flag for a socket. Timeout value comes from \c getTimeout(),
           * @param bOn    sets SO_LINGER state of the socket on/off.
-          * @return status of setsockopt
           * See -s 3SOCKET setsockopt and sys/socket.h for details.
           */
-        int abortOnClose(int bOn);
+        void abortOnClose(int bOn);
 
         /** Sets the socket buffer mechanism.
           * By disabling the buffer mechanism all data is sent immediately.

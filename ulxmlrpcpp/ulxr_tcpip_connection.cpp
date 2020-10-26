@@ -601,7 +601,7 @@ namespace ulxr {
     }
 
 
-    int TcpIpConnection::abortOnClose(int bOn)
+    void TcpIpConnection::abortOnClose(int bOn)
     {
         linger sock_linger_struct = {1, 0};
         sock_linger_struct.l_onoff = bOn;
@@ -613,17 +613,20 @@ namespace ulxr {
             if (getServerData()->isIpv4Open())
             {
                 handle = getServerData()->getIpv4Socket();
-                return setsockopt(handle, SOL_SOCKET, SO_LINGER,  &sock_linger_struct, sizeof(linger));
+                setsockopt(handle, SOL_SOCKET, SO_LINGER,  &sock_linger_struct, sizeof(linger));
+                return;
             }
             if (getServerData()->isIpv6Open())
             {
                 handle = getServerData()->getIpv6Socket();
-                return setsockopt(handle, SOL_SOCKET, SO_LINGER, &sock_linger_struct, sizeof(linger));
+                setsockopt(handle, SOL_SOCKET, SO_LINGER, &sock_linger_struct, sizeof(linger));
+                return;
             }
         }
         else
         {
-            return setsockopt(handle, SOL_SOCKET, SO_LINGER, &sock_linger_struct, sizeof(linger));
+            setsockopt(handle, SOL_SOCKET, SO_LINGER, &sock_linger_struct, sizeof(linger));
+            return;
         }
     }
 
