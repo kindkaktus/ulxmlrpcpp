@@ -98,7 +98,7 @@ int main(int argc, char **argv)
 
     try
     {
-        std::auto_ptr<ulxr::TcpIpConnection> conn = std::auto_ptr<ulxr::TcpIpConnection>(new ulxr::TcpIpConnection (true, 0, port));
+        std::unique_ptr<ulxr::TcpIpConnection> conn = std::unique_ptr<ulxr::TcpIpConnection>(new ulxr::TcpIpConnection (true, 0, port));
 
         ulxr::HttpProtocol prot(conn.get());
 

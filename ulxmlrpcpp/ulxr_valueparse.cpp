@@ -204,7 +204,7 @@ namespace ulxr {
         if (states.size() <= 1)
             throw RuntimeException(ApplicationError, "abnormal program behaviour: ValueParser::testEndElement() had no states left");
 
-        std::auto_ptr<ValueState> curr(getTopValueState());
+        std::unique_ptr<ValueState> curr(getTopValueState());
         states.pop();
         states.top()->setPrevParserState(curr->getParserState());
         switch(curr->getParserState() )

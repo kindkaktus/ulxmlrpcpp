@@ -195,7 +195,7 @@ int main(int argc, char **argv)
               << host << ":" << port << std::endl
               << "Chunked transfer: " << chunked << std::endl;
 
-    std::auto_ptr<ulxr::TcpIpConnection> conn;
+    std::unique_ptr<ulxr::TcpIpConnection> conn;
     if (secure)
     {
         ulxr::SSLConnection *ssl = new ulxr::SSLConnection (true, host, port);

@@ -85,7 +85,7 @@ namespace ulxr {
         char buffer[ULXR_RECV_BUFFER_SIZE];
         char *buff_ptr;
 
-        std::auto_ptr<XmlParserBase> parser;
+        std::unique_ptr<XmlParserBase> parser;
         MethodResponseParserBase *rpb = 0;
         ULXR_TRACE("waitForResponse in XML");
         MethodResponseParser *rp = new MethodResponseParser();

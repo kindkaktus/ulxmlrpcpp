@@ -69,7 +69,7 @@ int main(int argc, char **argv)
                   << host << ":" << port << std::endl
                   << "Chunked transfer: " << chunked << std::endl;
 
-        std::auto_ptr<ulxr::TcpIpConnection> conn;
+        std::unique_ptr<ulxr::TcpIpConnection> conn;
         if (secure)
             conn.reset(new ulxr::SSLConnection (false, host, port));
         else

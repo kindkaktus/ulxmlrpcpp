@@ -84,7 +84,7 @@ int main(int argc, char **argv)
     std::cout << "Serving " << " securing " << " rpc requests at "
               << host << ":" << port << std::endl;
 
-    std::auto_ptr<funtik::SSLConnection> conn = std::auto_ptr<funtik::SSLConnection>(new funtik::SSLConnection (true, host, port));
+    std::unique_ptr<funtik::SSLConnection> conn = std::unique_ptr<funtik::SSLConnection>(new funtik::SSLConnection (true, host, port));
 
 
 

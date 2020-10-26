@@ -89,10 +89,10 @@ int main(int argc, char **argv)
     myIP.ipv4 = ipv4;
     myIP.ipv6 = ipv6;
 
-    std::auto_ptr<ulxr::HttpProtocol> prot;
+    std::unique_ptr<ulxr::HttpProtocol> prot;
     try
     {
-        std::auto_ptr<ulxr::TcpIpConnection> conn;
+        std::unique_ptr<ulxr::TcpIpConnection> conn;
         if (secure)
         {
             ulxr::SSLConnection *ssl = new ulxr::SSLConnection (myIP, port, false);

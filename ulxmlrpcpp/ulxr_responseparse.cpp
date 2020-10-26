@@ -125,7 +125,7 @@ namespace ulxr {
         if (states.size() <= 1)
             throw RuntimeException(ApplicationError, "abnormal program behaviour: MethodResponseParser::testEndElement() had no states left");
 
-        std::auto_ptr<ValueState> curr(getTopValueState());
+        std::unique_ptr<ValueState> curr(getTopValueState());
         states.pop();
         ValueState *on_top = getTopValueState();
 

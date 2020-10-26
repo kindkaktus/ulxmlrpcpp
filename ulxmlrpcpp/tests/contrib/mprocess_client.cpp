@@ -67,7 +67,7 @@ int main(int argc, char **argv)
 
         std::cout<<"Test Cycles: "<<uiNumCycles<<" Number query in cycle: "<<uiNumQuery<<std::endl;
 
-        std::auto_ptr<ulxr::TcpIpConnection> conn(new ulxr::TcpIpConnection (false, host, port));
+        std::unique_ptr<ulxr::TcpIpConnection> conn(new ulxr::TcpIpConnection (false, host, port));
 
         ulxr::HttpProtocol prot(conn.get());
         ulxr::Requester client(&prot);

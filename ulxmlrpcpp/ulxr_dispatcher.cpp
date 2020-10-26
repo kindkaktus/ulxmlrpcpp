@@ -311,7 +311,7 @@ namespace ulxr {
         char *buff_ptr;
 
 
-        std::auto_ptr<XmlParserBase> parser;
+        std::unique_ptr<XmlParserBase> parser;
         MethodCallParserBase *cpb = 0;
         ULXR_TRACE("waitForCall in XML");
         MethodCallParser *cp = new MethodCallParser();

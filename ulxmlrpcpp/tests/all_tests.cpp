@@ -237,11 +237,11 @@ int main(int argc, char **argv)
     myIP.ipv4 = ipv4;
     myIP.ipv6 = ipv6;
 
-    std::auto_ptr<ulxr::HttpProtocol> mySvrProto;
+    std::unique_ptr<ulxr::HttpProtocol> mySvrProto;
     try
     {
         // Setup server
-        std::auto_ptr<ulxr::TcpIpConnection> mySvrConn;
+        std::unique_ptr<ulxr::TcpIpConnection> mySvrConn;
         if (myUseSsl)
         {
             ulxr::SSLConnection *ssl = new ulxr::SSLConnection (myIP, port, false);
@@ -275,7 +275,7 @@ int main(int argc, char **argv)
         const size_t myNumCalls = myIsPerformanceTest ? myExpectedExecTime.numCalls : 1;
 
         std::cout << "Prepare to request " << (myUseSsl ? "secured" : "unsecured") << " communication to " << (myConnectToIpv4 ? ipv4 : ipv6) << ":" << port << std::endl;
-        std::auto_ptr<ulxr::TcpIpConnection> myClientConn;
+        std::unique_ptr<ulxr::TcpIpConnection> myClientConn;
         if (myUseSsl)
             myClientConn.reset(new ulxr::SSLConnection (myConnectToIpv4 ? ipv4 : ipv6, port, false));
         else

@@ -72,7 +72,7 @@ int main(int argc, char **argv)
             {   // child
                 for (unsigned i=0; i < myNumRequestsPerClient; ++i)
                 {
-                    std::auto_ptr<ulxr::TcpIpConnection> conn;
+                    std::unique_ptr<ulxr::TcpIpConnection> conn;
                     if (secure)
                         conn.reset(new ulxr::SSLConnection (host, port, false));
                     else

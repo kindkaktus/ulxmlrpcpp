@@ -62,7 +62,7 @@ int main(int argc, char **argv)
                   << host << ":" << port << std::endl;
 
 
-        std::auto_ptr<funtik::SSLConnection> conn = std::auto_ptr<funtik::SSLConnection>(new funtik::SSLConnection (false, host, port));
+        std::unique_ptr<funtik::SSLConnection> conn = std::unique_ptr<funtik::SSLConnection>(new funtik::SSLConnection (false, host, port));
 
 
 
